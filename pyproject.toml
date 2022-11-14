@@ -1,14 +1,16 @@
 [tool.poetry]
-name = "sqlmodelrepository"
+name = "python-repository"
 version = "1.0.0"
 description = "sqlmodel repository pattern implementation"
-authors = ["Yannic Schröer"]
+authors = ["Jonas Scholl <jonas@code-specialist.com>", "Yannic Schröer <yannic@code-specialist.com>"]
 license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
 sqlmodel = "^0.0.8"
+sqlalchemy-utils = "^0.38.3"
+psycopg2-binary = "^2.9.5"
 
 
 [build-system]

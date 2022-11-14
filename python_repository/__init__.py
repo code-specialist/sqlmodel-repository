@@ -1,5 +1,4 @@
-from python_repository.repository_controller import RepositoryController
-from python_repository.sqlalchemy_repository import SQLAlchemyRepository
-from python_repository.sqlmodel_repository import SQLModelRepository
+from python_repository.controller import RepositoryController
+from python_repository.repository import SQLModelRepository
 
-__all__ = [RepositoryController.__name__, SQLModelRepository.__name__, SQLAlchemyRepository.__name__]
+__all__ = [RepositoryController.__name__, SQLModelRepository.__name__]
