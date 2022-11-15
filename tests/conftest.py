@@ -4,7 +4,7 @@ from enum import Enum
 from database_tools.session_manager import SessionManager
 from database_tools.setup import DatabaseSetup
 from tests.databases.config import POSTGRESQL_DATABASE_URI, SQLITE_DATABASE_URI
-from tests.implementation.models import sqlmodel_metadata
+from tests.implementation.models import model_metadata
 
 
 class Databases(Enum):
@@ -24,12 +24,12 @@ def build_setup(database: Databases) -> Setup:
     """ Build the setups for the databases """
     database_uri = {
         Databases.POSTGRESQL: f'{POSTGRESQL_DATABASE_URI}/test',
-        Databases.SQLITE: f'{SQLITE_DATABASE_URI}/test'
+        Databases.SQLITE: f'{SQLITE_DATABASE_URI}'
     }.get(database)
 
     return Setup(
         session_manager=SessionManager(database_uri=database_uri),
-        database_setup=DatabaseSetup(model_metadata=sqlmodel_metadata, database_uri=database_uri)
+        database_setup=DatabaseSetup(model_metadata=model_metadata, database_uri=database_uri)
     )
 
 
@@ -45,4 +45,9 @@ def pytest_sessionstart(session):
 
 def pytest_generate_tests(metafunc):
     """ Parametrize the tests with the database and the implementation """
-    metafunc.parametrize("database_session", [setup.session_manager.get_session() for setup in setups])
+
+    metafunc.parametrize(
+        "database_session",
+        [next(setup.session_manager.get_session()) for setup in setups],
+        ids=["postgresql", "sqlite"]
+    )

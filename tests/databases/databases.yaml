@@ -4,6 +4,8 @@ services:
   postgresql-database:
     image: postgres:15.1
     container_name: "python-repository-test-database"
+    ports:
+        - "5432:5432"
     environment:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"

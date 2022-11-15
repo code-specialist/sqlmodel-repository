@@ -1,4 +1,5 @@
 import threading
+from typing import Iterator
 
 import sqlalchemy as sqla
 from sqlalchemy.engine import Engine
@@ -23,11 +24,19 @@ class SessionManager:
 
         Args:
             database_uri (str): The URI of the database to manage sessions for
+
+        Keyword Args:
+            **kwargs: Keyword arguments to pass to the engine
+
+            postgresql:
+                pool_size (int): The maximum number of connections to the database
+                max_overflow (int): The maximum number of connections to the database
+                pre_ping (bool): Whether to ping the database before each connection
         """
         self.database_uri = database_uri
         self.engine = self.get_engine(**kwargs)
 
-    def get_session(self) -> ScopedSession:
+    def get_session(self) -> Iterator[ScopedSession]:
         """ Provides a scoped session (thread safe) that is automatically terminated by the garbage collector """
         with Session(self.engine) as session:
             yield session

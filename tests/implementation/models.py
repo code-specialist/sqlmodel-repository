@@ -1,10 +1,12 @@
 from enum import Enum
 
+from sqlmodel import Relationship, Field
+
 from python_repository import SQLModelRepository
-from sqlmodel import Relationship
+
 
 class PetType(Enum):
-    """ Enum that describe the type of a pet """
+    """ Enum that describes the type of pet """
     DOG = "dog"
     CAT = "cat"
     FISH = "fish"
@@ -15,7 +17,8 @@ class Pet(SQLModelRepository, table=True):
     name: str
     age: int
     type: PetType
-    shelter_id: int
+    shelter_id: int = Field(foreign_key="shelter.id")
+    shelter: "Shelter" = Relationship(back_populates="pets")
 
 
 class Shelter(SQLModelRepository, table=True):
@@ -24,4 +27,4 @@ class Shelter(SQLModelRepository, table=True):
     pets: list[Pet] = Relationship(back_populates="shelter")
 
 
-sqlmodel_metadata = SQLModelRepository.metadata
+model_metadata = SQLModelRepository.metadata

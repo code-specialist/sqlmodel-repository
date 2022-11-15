@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Type
 
 from sqlalchemy.orm import Session
+from sqlmodel import col
 
 from python_repository.repository import SQLModelRepository
 
@@ -14,19 +15,21 @@ class RepositoryController:
     def __init_subclass__(cls, *args, **kwargs):
         """ Initialize subclass and set the entity that is managed by the controller """
         cls.entity = kwargs.get('entity')
+        # TODO: Check if we create repositories for relationships here as well
+        # TODO: Type hints for the entity are not working properly
 
     @classmethod
-    def add(cls, session: Session, **kwargs) -> Type[entity]:
+    def add(cls, object_to_add: Type[entity], session: Session) -> Type[entity]:
         """ Add an object
 
         Args:
             session (Session): The session to use
-            **kwargs: The attributes to set
+            object_to_add (Type[entity]): The object to add
 
         Returns:
-            Self: The added object instance
+            Type[entity]: The added object instance
         """
-        obj = cls.entity(**kwargs)
+        obj = cls.entity(**object_to_add.__dict__)
         session.add(obj)
         session.commit()
         session.refresh(obj)
@@ -49,7 +52,19 @@ class RepositoryController:
         return session.query(cls.entity).filter(cls.entity.id == id).one()
 
     @classmethod
-    def get_all(cls, ids: list[int], session: Session) -> list[Type[entity]]:
+    def get_all(cls, session: Session) -> list[Type[entity]]:
+        """ Get an object by id
+
+        Args:
+            session (Session): The session to use
+
+        Returns:
+            list[Type[entity]]: The objects or an empty list if not found
+        """
+        return session.query(cls.entity).all()
+
+    @classmethod
+    def get_all_by_ids(cls, ids: list[int], session: Session) -> list[Type[entity]]:
         """ Get an object by id
 
         Args:
@@ -59,9 +74,7 @@ class RepositoryController:
         Returns:
             list[Type[entity]]: The objects or an empty list if not found
         """
-        # in_ is a SQLAlchemy function
-        # noinspection PyUnresolvedReferences
-        return session.query(cls).filter(cls.entity.id.in_(ids)).all()
+        return session.query(cls.entity).filter(col(cls.entity.id).in_(ids)).all()
 
     @classmethod
     def delete(cls, id: int, session: Session) -> Type[entity]:
@@ -83,7 +96,7 @@ class RepositoryController:
         return object_to_delete
 
     @classmethod
-    def delete_all(cls, ids: list[int], session: Session) -> list[Type[entity]]:
+    def delete_all_by_ids(cls, ids: list[int], session: Session) -> list[Type[entity]]:
         """ Delete an object by id
 
         Args:
@@ -93,28 +106,33 @@ class RepositoryController:
         Returns:
             list[Type[entity]]: The deleted objects or an empty list if no entries were affected
         """
-        objects_to_delete = cls.get_all(ids=ids, session=session)
-        map(lambda obj: obj.delete(session), objects_to_delete)
+        objects_to_delete = cls.get_all_by_ids(ids=ids, session=session)
+        for to_delete in objects_to_delete:
+            session.delete(to_delete)
         session.commit()
         return objects_to_delete
 
     @classmethod
-    def update(cls, object_to_update: Type[entity], new_object: Type[entity], session: Session, allowed_attributes: list[str] = None) -> Type[entity]:
+    def update(cls, id: int, new_object: Type[entity], session: Session, allowed_attributes: list[str] = None) -> Type[entity]:
         """ Update an object
 
         Args:
             new_object (Type[entity]): The new object
-            object_to_update (Type[entity]): The object to update
+            id (int): The id of the object to updae
             session (Session): The session to use
             allowed_attributes (Optional[list[str]]): A list of attributes that are allowed to be updated. If none are provided all attributes are allowed. Defaults to None.
 
         Returns:
             Type[entity]: The updated object instance
         """
+        object_to_update = cls.get(id=id, session=session)
+
         if allowed_attributes is None:
             allowed_attributes = object_to_update.__dict__.keys()
 
         def _is_key_allowed(key: str) -> bool:
+            if key in ['id', '_sa_instance_state']:
+                return False
             return key in allowed_attributes
 
         for key, value in new_object.__dict__.items():

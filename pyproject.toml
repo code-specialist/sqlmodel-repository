@@ -11,8 +11,13 @@ python = "^3.9"
 sqlmodel = "^0.0.8"
 sqlalchemy-utils = "^0.38.3"
 psycopg2-binary = "^2.9.5"
+pytest-cov = "^4.0.0"
 
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.pytest.ini_options]
+addopts = "-x -p no:warnings --cov-report=term-missing --cov-report=term --no-cov-on-fail --cov=python_repository"
