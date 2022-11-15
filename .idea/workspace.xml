@@ -2,17 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2e2b0a6f-bd57-4bc2-bc32-35bcff653a0a" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database_tools/session_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/database_tools/session_manager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/poetry.lock" beforeDir="false" afterPath="$PROJECT_DIR$/poetry.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/aws.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sqlmodelRepository.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/python_repository/controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/python_repository/controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python_repository/repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/python_repository/repository.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/conftest.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/conftest.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/databases/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/databases/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/databases/databases.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/tests/databases/databases.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/implementation/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/implementation/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_sqlmodel_repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_sqlmodel_repository.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -182,7 +181,7 @@
       <workItem from="1668011369886" duration="7189000" />
       <workItem from="1668025743467" duration="1414000" />
       <workItem from="1668027265606" duration="11682000" />
-      <workItem from="1668536552029" duration="3725000" />
+      <workItem from="1668536552029" duration="4335000" />
     </task>
     <servers />
   </component>
@@ -205,7 +204,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/python_repository/controller.py</url>
-          <line>142</line>
+          <line>145</line>
           <option name="timeStamp" value="8" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">

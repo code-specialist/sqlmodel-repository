@@ -1,11 +1,13 @@
 from __future__ import annotations
 
-from typing import Type
+from typing import Type, TypeVar
 
 from sqlalchemy.orm import Session
 from sqlmodel import col
 
 from python_repository.repository import SQLModelRepository
+
+T = TypeVar('T')
 
 
 class RepositoryController:
@@ -14,12 +16,12 @@ class RepositoryController:
 
     def __init_subclass__(cls, *args, **kwargs):
         """ Initialize subclass and set the entity that is managed by the controller """
-        cls.entity = kwargs.get('entity')
+        cls.entity: T = kwargs.get('entity')
         # TODO: Check if we create repositories for relationships here as well
         # TODO: Type hints for the entity are not working properly
 
     @classmethod
-    def add(cls, object_to_add: Type[entity], session: Session) -> Type[entity]:
+    def add(cls, object_to_add: Type[entity], session: Session) -> T:
         """ Add an object
 
         Args:
@@ -29,6 +31,7 @@ class RepositoryController:
         Returns:
             Type[entity]: The added object instance
         """
+
         obj = cls.entity(**object_to_add.__dict__)
         session.add(obj)
         session.commit()
@@ -36,7 +39,7 @@ class RepositoryController:
         return obj
 
     @classmethod
-    def get(cls, id: int, session: Session) -> Type[entity]:
+    def get(cls, id: int, session: Session) -> T:
         """ Get an object by id
 
         Args:
@@ -52,7 +55,7 @@ class RepositoryController:
         return session.query(cls.entity).filter(cls.entity.id == id).one()
 
     @classmethod
-    def get_all(cls, session: Session) -> list[Type[entity]]:
+    def get_all(cls, session: Session) -> list[T]:
         """ Get an object by id
 
         Args:
@@ -64,7 +67,7 @@ class RepositoryController:
         return session.query(cls.entity).all()
 
     @classmethod
-    def get_all_by_ids(cls, ids: list[int], session: Session) -> list[Type[entity]]:
+    def get_all_by_ids(cls, ids: list[int], session: Session) -> list[T]:
         """ Get an object by id
 
         Args:
@@ -77,7 +80,7 @@ class RepositoryController:
         return session.query(cls.entity).filter(col(cls.entity.id).in_(ids)).all()
 
     @classmethod
-    def delete(cls, id: int, session: Session) -> Type[entity]:
+    def delete(cls, id: int, session: Session) -> T:
         """ Delete an object by id
 
         Args:
@@ -96,7 +99,7 @@ class RepositoryController:
         return object_to_delete
 
     @classmethod
-    def delete_all_by_ids(cls, ids: list[int], session: Session) -> list[Type[entity]]:
+    def delete_all_by_ids(cls, ids: list[int], session: Session) -> list[T]:
         """ Delete an object by id
 
         Args:
@@ -113,7 +116,7 @@ class RepositoryController:
         return objects_to_delete
 
     @classmethod
-    def update(cls, id: int, new_object: Type[entity], session: Session, allowed_attributes: list[str] = None) -> Type[entity]:
+    def update(cls, id: int, new_object: T, session: Session, allowed_attributes: list[str] = None) -> T:
         """ Update an object
 
         Args:
