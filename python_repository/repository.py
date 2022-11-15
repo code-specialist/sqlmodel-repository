@@ -136,5 +136,6 @@ class Repository(Generic[GenericEntity]):
 
     def _entity_class(self) -> Type[GenericEntity]:
         """ Returns the entity class """
-        generic_type = getattr(self, '__orig_bases__', ())[0]
+        # TODO: handle edge cases
+        generic_type = getattr(self, '__orig_bases__')[0]
         return get_args(generic_type)[0]
