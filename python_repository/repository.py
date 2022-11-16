@@ -13,7 +13,8 @@ GenericEntity = TypeVar('GenericEntity', SQLModelEntity, SQLModelEntity)  # must
 class Repository(Generic[GenericEntity]):
     """ Base class for controller implementations """
 
-    def add(self, object_to_add: GenericEntity, session: Session) -> GenericEntity:
+    @classmethod
+    def add(cls, object_to_add: GenericEntity, session: Session) -> GenericEntity:
         """ Add an object
 
         Args:
@@ -23,14 +24,15 @@ class Repository(Generic[GenericEntity]):
         Returns:
             EntityType: The added object instance
         """
-        obj = self._entity_class()(**object_to_add.__dict__)
+        obj = cls._entity_class()(**object_to_add.__dict__)
         session.add(obj)
         session.commit()
         session.refresh(obj)
         return obj
 
     # noinspection PyShadowingBuiltins
-    def get(self, id: int, session: Session) -> GenericEntity:
+    @classmethod
+    def get(cls, id: int, session: Session) -> GenericEntity:
         """ Get an object by id
 
         Args:
@@ -43,9 +45,10 @@ class Repository(Generic[GenericEntity]):
         Raises:
             NoResultFound: If no object was found
         """
-        return session.query(self._entity_class()).filter(self._entity_class().id == id).one()
+        return session.query(cls._entity_class()).filter(cls._entity_class().id == id).one()
 
-    def get_all(self, session: Session) -> list[GenericEntity]:
+    @classmethod
+    def get_all(cls, session: Session) -> list[GenericEntity]:
         """ Get an object by id
 
         Args:
@@ -54,9 +57,10 @@ class Repository(Generic[GenericEntity]):
         Returns:
             list[EntityType]: The objects or an empty list if not found
         """
-        return session.query(self._entity_class()).all()
+        return session.query(cls._entity_class()).all()
 
-    def get_all_by_ids(self, ids: list[int], session: Session) -> list[GenericEntity]:
+    @classmethod
+    def get_all_by_ids(cls, ids: list[int], session: Session) -> list[GenericEntity]:
         """ Get an object by id
 
         Args:
@@ -66,10 +70,11 @@ class Repository(Generic[GenericEntity]):
         Returns:
             list[EntityType]: The objects or an empty list if not found
         """
-        return session.query(self._entity_class()).filter(col(self._entity_class().id).in_(ids)).all()
+        return session.query(cls._entity_class()).filter(col(cls._entity_class().id).in_(ids)).all()
 
     # noinspection PyShadowingBuiltins
-    def delete(self, id: int, session: Session) -> GenericEntity:
+    @classmethod
+    def delete(cls, id: int, session: Session) -> GenericEntity:
         """ Delete an object by id
 
         Args:
@@ -82,12 +87,13 @@ class Repository(Generic[GenericEntity]):
         Raises:
             NoResultFound: If no object was found
         """
-        object_to_delete = self.get(id=id, session=session)
+        object_to_delete = cls.get(id=id, session=session)
         session.delete(object_to_delete)
         session.commit()
         return object_to_delete
 
-    def delete_all_by_ids(self, ids: list[int], session: Session) -> list[GenericEntity]:
+    @classmethod
+    def delete_all_by_ids(cls, ids: list[int], session: Session) -> list[GenericEntity]:
         """ Delete an object by id
 
         Args:
@@ -97,13 +103,14 @@ class Repository(Generic[GenericEntity]):
         Returns:
             list[EntityType]: The deleted objects or an empty list if no entries were affected
         """
-        objects_to_delete = self.get_all_by_ids(ids=ids, session=session)
+        objects_to_delete = cls.get_all_by_ids(ids=ids, session=session)
         for to_delete in objects_to_delete:
             session.delete(to_delete)
         session.commit()
         return objects_to_delete
 
-    def update(self, id: int, new_object: GenericEntity, session: Session, allowed_attributes: list[str] = None) -> GenericEntity:
+    @classmethod
+    def update(cls, id: int, new_object: GenericEntity, session: Session, allowed_attributes: list[str] = None) -> GenericEntity:
         """ Update an object
 
         Args:
@@ -115,7 +122,7 @@ class Repository(Generic[GenericEntity]):
         Returns:
             EntityType: The updated object instance
         """
-        object_to_update = self.get(id=id, session=session)
+        object_to_update = cls.get(id=id, session=session)
 
         if allowed_attributes is None:
             allowed_attributes = object_to_update.__dict__.keys()
@@ -134,8 +141,9 @@ class Repository(Generic[GenericEntity]):
         session.refresh(object_to_update)
         return object_to_update
 
-    def _entity_class(self) -> Type[GenericEntity]:
+    @classmethod
+    def _entity_class(cls) -> Type[GenericEntity]:
         """ Returns the entity class """
         # TODO: handle edge cases
-        generic_type = getattr(self, '__orig_bases__')[0]
+        generic_type = getattr(cls, '__orig_bases__')[0]
         return get_args(generic_type)[0]
