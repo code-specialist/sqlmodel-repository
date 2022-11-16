@@ -2,31 +2,32 @@ import pytest as pytest
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
-from tests.implementation.models import Pet, Shelter, PetType
+from tests.implementation.entities import Pet, Shelter, PetType
 from tests.implementation.repositories import PetRepository, ShelterRepository
 
 
 class TestSQLModelRepository:
+
     @pytest.fixture
-    def dog(self, database_session: Session, shelter_alpha) -> Pet:
+    def dog(self, database_session: Session, shelter_alpha: Shelter) -> Pet:
         dog = PetRepository.add(Pet(name='Fido', age=3, type=PetType.DOG, shelter_id=shelter_alpha.id), session=database_session)
         yield dog
         PetRepository.delete(id=dog.id, session=database_session)
 
     @pytest.fixture
-    def cat(self, database_session: Session, shelter_alpha) -> Pet:
+    def cat(self, database_session: Session, shelter_alpha: Shelter) -> Pet:
         cat = PetRepository.add(Pet(name='Felix', age=2, type=PetType.CAT, shelter_id=shelter_alpha.id), session=database_session)
         yield cat
         PetRepository.delete(id=cat.id, session=database_session)
 
     @pytest.fixture
-    def fish(self, database_session: Session, shelter_alpha) -> Pet:
+    def fish(self, database_session: Session, shelter_alpha: Shelter) -> Pet:
         fish = PetRepository.add(Pet(name='Nemo', age=1, type=PetType.FISH, shelter_id=shelter_alpha.id), session=database_session)
         yield fish
         PetRepository.delete(id=fish.id, session=database_session)
 
     @pytest.fixture
-    def shelter_alpha(self, database_session: Session):
+    def shelter_alpha(self, database_session: Session) -> Shelter:
         """ Test adding a shelter """
         shelter = ShelterRepository.add(Shelter(name="Shelter Alpha"), session=database_session)
         yield shelter

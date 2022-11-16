@@ -4,7 +4,7 @@ from enum import Enum
 from database_tools.session_manager import SessionManager
 from database_tools.setup import DatabaseSetup
 from tests.databases.config import POSTGRESQL_DATABASE_URI, SQLITE_DATABASE_URI
-from tests.implementation.models import model_metadata
+from tests.implementation.entities import model_metadata
 
 
 class Databases(Enum):

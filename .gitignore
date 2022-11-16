@@ -1,5 +1,7 @@
 .idea
 .DS_Store
 .pytest_cache
-__pycache__
-test.db
+**/__pycache__/**
+**/test.db
+.coverage
+.venv
