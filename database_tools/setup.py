@@ -1,4 +1,5 @@
 import sqlalchemy_utils
+from sqlalchemy import MetaData
 
 from database_tools.session_manager import SessionManager
 
@@ -6,11 +7,11 @@ from database_tools.session_manager import SessionManager
 class DatabaseSetup:
     """ Create the database and the tables if not done yet"""
 
-    def __init__(self, model_metadata, database_uri: str):
+    def __init__(self, model_metadata: MetaData, database_uri: str):
         """ Set up a database based on its URI and metadata. Will not overwrite existing data.
 
         Args:
-            model_metadata (TODO): The metadata of the models to create the tables for
+            model_metadata (MetaData): The metadata of the models to create the tables for
             database_uri (str): The URI of the database to create the tables for
 
         """
