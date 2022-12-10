@@ -2,15 +2,15 @@ import pytest as pytest
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
-from tests.implementation.entities import Pet, Shelter, PetType
-from tests.implementation.repositories import PetRepository, ShelterRepository
+from tests.scenario.entities import Pet, Shelter, PetType
+from tests.scenario.repositories import PetRepository, ShelterRepository
 
 
 class TestSQLModelRepository:
 
     @pytest.fixture
     def dog(self, database_session: Session, shelter_alpha: Shelter) -> Pet:
-        dog = PetRepository.add(Pet(name='Fido', age=3, type=PetType.DOG, shelter_id=shelter_alpha.id), session=database_session)
+        dog = PetRepository.create(Pet(name='Fido', age=3, type=PetType.DOG, shelter_id=shelter_alpha.id), session=database_session)
         yield dog
         PetRepository.delete(id=dog.id, session=database_session)
 

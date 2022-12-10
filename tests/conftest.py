@@ -1,10 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 
-from database_tools.session_manager import SessionManager
-from database_tools.setup import DatabaseSetup
-from tests.databases.config import POSTGRESQL_DATABASE_URI, SQLITE_DATABASE_URI
-from tests.implementation.entities import model_metadata
+from tests.scenario.entities import model_metadata
 
 
 class Databases(Enum):
@@ -36,7 +33,7 @@ def build_setup(database: Databases) -> Setup:
 setups = [build_setup(database=database) for database in Databases]
 
 
-def pytest_sessionstart(session):
+def pytest_sessionstart(_):
     """ Create or reset the databases before the tests """
     for setup in setups:
         setup.database_setup.drop_database()
