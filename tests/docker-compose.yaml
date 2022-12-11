@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   postgresql-database:
-    image: postgres:14
+    image: postgres:15
     container_name: "python-repository-test-postgres-database"
     ports:
       - "2345:5432"
