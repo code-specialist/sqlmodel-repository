@@ -36,7 +36,7 @@ toml = ["tomli"]
 
 [[package]]
 name = "database-setup-tools"
-version = "1.0.0"
+version = "1.0.1"
 description = "Tools to easily setup databases opinionated towards FastAPI and SQLModel"
 category = "main"
 optional = false
@@ -255,7 +255,7 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "584c0369c8a601f310dc6ad3a04ecaff99e7e7e5719aefc6ff4539acb826a857"
+content-hash = "795b509d0746e1972c17bd2d75aea46eaa22127f6a1ade72e4124f36bad57bb9"
 
 [metadata.files]
 attrs = []

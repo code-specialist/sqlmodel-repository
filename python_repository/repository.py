@@ -14,17 +14,17 @@ class Repository(Generic[GenericEntity], ABC):
     """ Abstract base class for repository implementations """
 
     @classmethod
-    def create(cls, entity_to_add: GenericEntity, session: Session) -> GenericEntity:
+    def create(cls, entity: GenericEntity, session: Session) -> GenericEntity:
         """ Creates an entity to the repository
 
         Args:
             session (Session): Database session to use
-            entity_to_add (GenericEntity): The entity to add
+            entity (GenericEntity): The entity to add
 
         Returns:
             GenericEntity: The added entity
         """
-        entity = cls._entity_class()(**entity_to_add.__dict__)
+        entity = cls._entity_class()(**entity.__dict__)
         session.add(entity)
         session.commit()
         session.refresh(entity)
@@ -46,7 +46,7 @@ class Repository(Generic[GenericEntity], ABC):
         """
         return session \
             .query(cls._entity_class()) \
-            .filter(cls._entity_class().entity_id == entity_id) \
+            .filter(cls._entity_class().id == entity_id) \
             .one()
 
     @classmethod
@@ -62,7 +62,7 @@ class Repository(Generic[GenericEntity], ABC):
         """
         return session \
             .query(cls._entity_class()) \
-            .filter(col(cls._entity_class().entity_id).in_(entity_ids)) \
+            .filter(col(cls._entity_class().id).in_(entity_ids)) \
             .all()
 
     @classmethod
@@ -177,4 +177,9 @@ class Repository(Generic[GenericEntity], ABC):
     def _entity_class(cls) -> Type[GenericEntity]:
         """ Retrieves the actual entity class at runtime """
         generic_alias = getattr(cls, '__orig_bases__')[0]
-        return get_args(generic_alias)[0]
+        entity_class = get_args(generic_alias)[0]
+
+        if not issubclass(entity_class, SQLModelEntity):
+            raise TypeError(f'Entity class {entity_class} for {cls.__name__} must be a subclass of {SQLModelEntity}')
+
+        return entity_class
