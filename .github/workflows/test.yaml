@@ -40,8 +40,12 @@ jobs:
         run: poetry install
         shell: bash
 
-      - name: Test with pytest
+      - name: Run Tests
         run: poetry run pytest
+        shell: bash
+
+      - name: Linting
+        run: poetry run pylint .
         shell: bash
 
       - name: Teardown Test Infrastructure

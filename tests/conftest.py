@@ -9,8 +9,8 @@ from tests.integration.scenario.entities import model_metadata
 
 class Databases(Enum):
     """ Enum of the databases """
-    # POSTGRESQL = 'postgresql'
-    SQLITE = 'sqlite'
+    # POSTGRESQL = "postgresql"
+    SQLITE = "sqlite"
 
 
 def build_setup(database: Databases) -> DatabaseSetup:
@@ -27,6 +27,7 @@ setups = [build_setup(database=database) for database in Databases]
 session_managers = [SessionManager(database_uri=setup.database_uri) for setup in setups]
 
 
+# pylint: disable=unused-argument
 # noinspection PyUnusedLocal
 def pytest_sessionstart(session):
     """ Create or reset the databases before the tests """

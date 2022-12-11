@@ -7,7 +7,7 @@ from sqlmodel import col
 
 from python_repository.entity import SQLModelEntity
 
-GenericEntity = TypeVar('GenericEntity', SQLModelEntity, SQLModelEntity)  # must be multiple constraints
+GenericEntity = TypeVar("GenericEntity", SQLModelEntity, SQLModelEntity)  # must be multiple constraints
 
 
 class Repository(Generic[GenericEntity], ABC):
@@ -93,7 +93,7 @@ class Repository(Generic[GenericEntity], ABC):
         Returns:
             GenericEntity: The updated entity
         """
-        not_allowed_attributes = {'entity_id', '_sa_instance_state'}
+        not_allowed_attributes = {"entity_id", "_sa_instance_state"}
 
         if allowed_attributes is None:
             allowed_attributes = entity.__dict__.keys()
@@ -176,10 +176,10 @@ class Repository(Generic[GenericEntity], ABC):
     @lru_cache(maxsize=1)
     def _entity_class(cls) -> Type[GenericEntity]:
         """ Retrieves the actual entity class at runtime """
-        generic_alias = getattr(cls, '__orig_bases__')[0]
+        generic_alias = getattr(cls, "__orig_bases__")[0]
         entity_class = get_args(generic_alias)[0]
 
         if not issubclass(entity_class, SQLModelEntity):
-            raise TypeError(f'Entity class {entity_class} for {cls.__name__} must be a subclass of {SQLModelEntity}')
+            raise TypeError(f"Entity class {entity_class} for {cls.__name__} must be a subclass of {SQLModelEntity}")
 
         return entity_class
