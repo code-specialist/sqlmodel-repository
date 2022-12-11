@@ -26,7 +26,7 @@ pylint-quotes = "^0.2.3"
 addopts = "-x -p no:warnings --cov-report=term-missing --cov-report=term --no-cov-on-fail --cov=python_repository"
 
 [tool.pylint.main]
-ignore = ["venv", ".venv", ".pytest_cache", ".idea", ".vscode", ".git", ".github"]
+ignore = ["venv", ".venv", ".pytest_cache"]
 load-plugins = "pylint_quotes"
 py-version = "3.10"
 recursive = true
@@ -36,16 +36,7 @@ suggestion-mode = true
 max-line-length = 200
 
 [tool.pylint."messages control"]
-disable = [
-    "no-name-in-module",
-    "missing-module-docstring",
-]
-
-[tool.pylint.similarities]
-ignore-comments = true
-ignore-docstrings = true
-ignore-imports = true
-ignore-signatures = true
+disable = ["missing-module-docstring"]
 
 [tool.pylint.string]
 check-quote-consistency = true
@@ -54,6 +45,3 @@ check-str-concat-over-line-jumps = true
 string-quote = "double"
 triple-quote = "double"
 docstring-quote = "double"
-
-[tool.pylint.typecheck]
-contextmanager-decorators = ["contextlib.contextmanager"]
