@@ -60,6 +60,7 @@ class Repository(Generic[GenericEntity], ABC):
         Returns:
             List[GenericEntity]: The entities that were found in the repository for the given IDs
         """
+        # noinspection PyTypeChecker
         return session \
             .query(cls._entity_class()) \
             .filter(col(cls._entity_class().id).in_(entity_ids)) \
@@ -75,6 +76,7 @@ class Repository(Generic[GenericEntity], ABC):
         Returns:
             List[GenericEntity]: All entities that were found in the repository
         """
+        # noinspection PyTypeChecker
         return session \
             .query(cls._entity_class()) \
             .all()
