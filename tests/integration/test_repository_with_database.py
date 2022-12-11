@@ -3,8 +3,8 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from tests.conftest import session_managers
-from tests.integration_tests.scenario.entities import Pet, Shelter, PetType
-from tests.integration_tests.scenario.repositories import PetRepository, ShelterRepository
+from tests.integration.scenario.entities import Pet, Shelter, PetType
+from tests.integration.scenario.repositories import PetRepository, ShelterRepository
 
 
 @pytest.mark.parametrize("database_session", [next(session_manager.get_session()) for session_manager in session_managers])

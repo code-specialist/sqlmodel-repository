@@ -4,7 +4,7 @@ from database_setup_tools.session_manager import SessionManager
 from database_setup_tools.setup import DatabaseSetup
 
 from tests.config import SQLITE_DATABASE_URI
-from tests.integration_tests.scenario.entities import model_metadata
+from tests.integration.scenario.entities import model_metadata
 
 
 class Databases(Enum):

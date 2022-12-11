@@ -1,5 +1,5 @@
 from python_repository import Repository
-from tests.integration_tests.scenario.entities import Pet, Shelter
+from tests.integration.scenario.entities import Pet, Shelter
 
 
 class PetRepository(Repository[Pet]):
