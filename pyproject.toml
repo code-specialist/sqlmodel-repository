@@ -1,0 +1,47 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "python-repository"
+version = "1.0.0"
+description = "sqlmodel repository pattern implementation"
+authors = ["Jonas Scholl <jonas@code-specialist.com>", "Yannic Schröer <yannic@code-specialist.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+database-setup-tools = "^1.0.1"
+sqlmodel = "^0.0.8"
+
+[tool.poetry.dev-dependencies]
+pytest-cov = "^4.0.0"
+psycopg2-binary = "^2.9.5"
+pytest = "^7.2.0"
+pylint = "^2.15.8"
+pylint-quotes = "^0.2.3"
+
+[tool.pytest.ini_options]
+addopts = "-x -p no:warnings --cov-report=term-missing --cov-report=term --no-cov-on-fail --cov=python_repository"
+
+[tool.pylint.main]
+ignore = ["venv", ".venv", ".pytest_cache"]
+load-plugins = "pylint_quotes"
+py-version = "3.10"
+recursive = true
+suggestion-mode = true
+
+[tool.pylint.format]
+max-line-length = 200
+
+[tool.pylint."messages control"]
+disable = ["missing-module-docstring"]
+
+[tool.pylint.string]
+check-quote-consistency = true
+check-str-concat-over-line-jumps = true
+
+string-quote = "double"
+triple-quote = "double"
+docstring-quote = "double"
