@@ -1,0 +1,699 @@
+[
+    {
+        "label": "os",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "os",
+        "description": "os",
+        "detail": "os",
+        "documentation": {}
+    },
+    {
+        "label": "site",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "site",
+        "description": "site",
+        "detail": "site",
+        "documentation": {}
+    },
+    {
+        "label": "sys",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "sys",
+        "description": "sys",
+        "detail": "sys",
+        "documentation": {}
+    },
+    {
+        "label": "SQLModel",
+        "importPath": "sqlmodel",
+        "description": "sqlmodel",
+        "isExtraImport": true,
+        "detail": "sqlmodel",
+        "documentation": {}
+    },
+    {
+        "label": "Field",
+        "importPath": "sqlmodel",
+        "description": "sqlmodel",
+        "isExtraImport": true,
+        "detail": "sqlmodel",
+        "documentation": {}
+    },
+    {
+        "label": "col",
+        "importPath": "sqlmodel",
+        "description": "sqlmodel",
+        "isExtraImport": true,
+        "detail": "sqlmodel",
+        "documentation": {}
+    },
+    {
+        "label": "Relationship",
+        "importPath": "sqlmodel",
+        "description": "sqlmodel",
+        "isExtraImport": true,
+        "detail": "sqlmodel",
+        "documentation": {}
+    },
+    {
+        "label": "Field",
+        "importPath": "sqlmodel",
+        "description": "sqlmodel",
+        "isExtraImport": true,
+        "detail": "sqlmodel",
+        "documentation": {}
+    },
+    {
+        "label": "ABC",
+        "importPath": "abc",
+        "description": "abc",
+        "isExtraImport": true,
+        "detail": "abc",
+        "documentation": {}
+    },
+    {
+        "label": "contextmanager",
+        "importPath": "contextlib",
+        "description": "contextlib",
+        "isExtraImport": true,
+        "detail": "contextlib",
+        "documentation": {}
+    },
+    {
+        "label": "lru_cache",
+        "importPath": "functools",
+        "description": "functools",
+        "isExtraImport": true,
+        "detail": "functools",
+        "documentation": {}
+    },
+    {
+        "label": "Callable",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Generator",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "TypeVar",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Generic",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Type",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "get_args",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "List",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Session",
+        "importPath": "sqlalchemy.orm",
+        "description": "sqlalchemy.orm",
+        "isExtraImport": true,
+        "detail": "sqlalchemy.orm",
+        "documentation": {}
+    },
+    {
+        "label": "Session",
+        "importPath": "sqlalchemy.orm",
+        "description": "sqlalchemy.orm",
+        "isExtraImport": true,
+        "detail": "sqlalchemy.orm",
+        "documentation": {}
+    },
+    {
+        "label": "SQLModelEntity",
+        "importPath": "python_repository.entity",
+        "description": "python_repository.entity",
+        "isExtraImport": true,
+        "detail": "python_repository.entity",
+        "documentation": {}
+    },
+    {
+        "label": "CouldNotCreateEntityException",
+        "importPath": "python_repository.exceptions",
+        "description": "python_repository.exceptions",
+        "isExtraImport": true,
+        "detail": "python_repository.exceptions",
+        "documentation": {}
+    },
+    {
+        "label": "CouldNotDeleteEntityException",
+        "importPath": "python_repository.exceptions",
+        "description": "python_repository.exceptions",
+        "isExtraImport": true,
+        "detail": "python_repository.exceptions",
+        "documentation": {}
+    },
+    {
+        "label": "EntityNotFoundException",
+        "importPath": "python_repository.exceptions",
+        "description": "python_repository.exceptions",
+        "isExtraImport": true,
+        "detail": "python_repository.exceptions",
+        "documentation": {}
+    },
+    {
+        "label": "Enum",
+        "importPath": "enum",
+        "description": "enum",
+        "isExtraImport": true,
+        "detail": "enum",
+        "documentation": {}
+    },
+    {
+        "label": "Enum",
+        "importPath": "enum",
+        "description": "enum",
+        "isExtraImport": true,
+        "detail": "enum",
+        "documentation": {}
+    },
+    {
+        "label": "SQLModelEntity",
+        "importPath": "python_repository",
+        "description": "python_repository",
+        "isExtraImport": true,
+        "detail": "python_repository",
+        "documentation": {}
+    },
+    {
+        "label": "Repository",
+        "importPath": "python_repository",
+        "description": "python_repository",
+        "isExtraImport": true,
+        "detail": "python_repository",
+        "documentation": {}
+    },
+    {
+        "label": "SQLModelEntity",
+        "importPath": "python_repository",
+        "description": "python_repository",
+        "isExtraImport": true,
+        "detail": "python_repository",
+        "documentation": {}
+    },
+    {
+        "label": "SQLModelEntity",
+        "importPath": "python_repository",
+        "description": "python_repository",
+        "isExtraImport": true,
+        "detail": "python_repository",
+        "documentation": {}
+    },
+    {
+        "label": "Repository",
+        "importPath": "python_repository",
+        "description": "python_repository",
+        "isExtraImport": true,
+        "detail": "python_repository",
+        "documentation": {}
+    },
+    {
+        "label": "Pet",
+        "importPath": "tests.integration.scenario.entities",
+        "description": "tests.integration.scenario.entities",
+        "isExtraImport": true,
+        "detail": "tests.integration.scenario.entities",
+        "documentation": {}
+    },
+    {
+        "label": "Shelter",
+        "importPath": "tests.integration.scenario.entities",
+        "description": "tests.integration.scenario.entities",
+        "isExtraImport": true,
+        "detail": "tests.integration.scenario.entities",
+        "documentation": {}
+    },
+    {
+        "label": "Pet",
+        "importPath": "tests.integration.scenario.entities",
+        "description": "tests.integration.scenario.entities",
+        "isExtraImport": true,
+        "detail": "tests.integration.scenario.entities",
+        "documentation": {}
+    },
+    {
+        "label": "Shelter",
+        "importPath": "tests.integration.scenario.entities",
+        "description": "tests.integration.scenario.entities",
+        "isExtraImport": true,
+        "detail": "tests.integration.scenario.entities",
+        "documentation": {}
+    },
+    {
+        "label": "PetType",
+        "importPath": "tests.integration.scenario.entities",
+        "description": "tests.integration.scenario.entities",
+        "isExtraImport": true,
+        "detail": "tests.integration.scenario.entities",
+        "documentation": {}
+    },
+    {
+        "label": "model_metadata",
+        "importPath": "tests.integration.scenario.entities",
+        "description": "tests.integration.scenario.entities",
+        "isExtraImport": true,
+        "detail": "tests.integration.scenario.entities",
+        "documentation": {}
+    },
+    {
+        "label": "pytest",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "pytest",
+        "description": "pytest",
+        "detail": "pytest",
+        "documentation": {}
+    },
+    {
+        "label": "NoResultFound",
+        "importPath": "sqlalchemy.exc",
+        "description": "sqlalchemy.exc",
+        "isExtraImport": true,
+        "detail": "sqlalchemy.exc",
+        "documentation": {}
+    },
+    {
+        "label": "session_managers",
+        "importPath": "tests.conftest",
+        "description": "tests.conftest",
+        "isExtraImport": true,
+        "detail": "tests.conftest",
+        "documentation": {}
+    },
+    {
+        "label": "PetRepository",
+        "importPath": "tests.integration.scenario.repositories",
+        "description": "tests.integration.scenario.repositories",
+        "isExtraImport": true,
+        "detail": "tests.integration.scenario.repositories",
+        "documentation": {}
+    },
+    {
+        "label": "ShelterRepository",
+        "importPath": "tests.integration.scenario.repositories",
+        "description": "tests.integration.scenario.repositories",
+        "isExtraImport": true,
+        "detail": "tests.integration.scenario.repositories",
+        "documentation": {}
+    },
+    {
+        "label": "SessionManager",
+        "importPath": "database_setup_tools.session_manager",
+        "description": "database_setup_tools.session_manager",
+        "isExtraImport": true,
+        "detail": "database_setup_tools.session_manager",
+        "documentation": {}
+    },
+    {
+        "label": "DatabaseSetup",
+        "importPath": "database_setup_tools.setup",
+        "description": "database_setup_tools.setup",
+        "isExtraImport": true,
+        "detail": "database_setup_tools.setup",
+        "documentation": {}
+    },
+    {
+        "label": "SQLITE_DATABASE_URI",
+        "importPath": "tests.config",
+        "description": "tests.config",
+        "isExtraImport": true,
+        "detail": "tests.config",
+        "documentation": {}
+    },
+    {
+        "label": "bin_dir",
+        "kind": 5,
+        "importPath": ".venv.bin.activate_this",
+        "description": ".venv.bin.activate_this",
+        "peekOfCode": "bin_dir = os.path.dirname(abs_file)\nbase = bin_dir[: -len(\"bin\") - 1]  # strip away the bin part from the __file__, plus the path separator\n# prepend bin to PATH (this file is inside the bin directory)\nos.environ[\"PATH\"] = os.pathsep.join([bin_dir] + os.environ.get(\"PATH\", \"\").split(os.pathsep))\nos.environ[\"VIRTUAL_ENV\"] = base  # virtual env is right above bin directory\n# add the virtual environments libraries to the host python import mechanism\nprev_length = len(sys.path)\nfor lib in \"../lib/python3.10/site-packages\".split(os.pathsep):\n    path = os.path.realpath(os.path.join(bin_dir, lib))\n    site.addsitedir(path.decode(\"utf-8\") if \"\" else path)",
+        "detail": ".venv.bin.activate_this",
+        "documentation": {}
+    },
+    {
+        "label": "base",
+        "kind": 5,
+        "importPath": ".venv.bin.activate_this",
+        "description": ".venv.bin.activate_this",
+        "peekOfCode": "base = bin_dir[: -len(\"bin\") - 1]  # strip away the bin part from the __file__, plus the path separator\n# prepend bin to PATH (this file is inside the bin directory)\nos.environ[\"PATH\"] = os.pathsep.join([bin_dir] + os.environ.get(\"PATH\", \"\").split(os.pathsep))\nos.environ[\"VIRTUAL_ENV\"] = base  # virtual env is right above bin directory\n# add the virtual environments libraries to the host python import mechanism\nprev_length = len(sys.path)\nfor lib in \"../lib/python3.10/site-packages\".split(os.pathsep):\n    path = os.path.realpath(os.path.join(bin_dir, lib))\n    site.addsitedir(path.decode(\"utf-8\") if \"\" else path)\nsys.path[:] = sys.path[prev_length:] + sys.path[0:prev_length]",
+        "detail": ".venv.bin.activate_this",
+        "documentation": {}
+    },
+    {
+        "label": "os.environ[\"PATH\"]",
+        "kind": 5,
+        "importPath": ".venv.bin.activate_this",
+        "description": ".venv.bin.activate_this",
+        "peekOfCode": "os.environ[\"PATH\"] = os.pathsep.join([bin_dir] + os.environ.get(\"PATH\", \"\").split(os.pathsep))\nos.environ[\"VIRTUAL_ENV\"] = base  # virtual env is right above bin directory\n# add the virtual environments libraries to the host python import mechanism\nprev_length = len(sys.path)\nfor lib in \"../lib/python3.10/site-packages\".split(os.pathsep):\n    path = os.path.realpath(os.path.join(bin_dir, lib))\n    site.addsitedir(path.decode(\"utf-8\") if \"\" else path)\nsys.path[:] = sys.path[prev_length:] + sys.path[0:prev_length]\nsys.real_prefix = sys.prefix\nsys.prefix = base",
+        "detail": ".venv.bin.activate_this",
+        "documentation": {}
+    },
+    {
+        "label": "os.environ[\"VIRTUAL_ENV\"]",
+        "kind": 5,
+        "importPath": ".venv.bin.activate_this",
+        "description": ".venv.bin.activate_this",
+        "peekOfCode": "os.environ[\"VIRTUAL_ENV\"] = base  # virtual env is right above bin directory\n# add the virtual environments libraries to the host python import mechanism\nprev_length = len(sys.path)\nfor lib in \"../lib/python3.10/site-packages\".split(os.pathsep):\n    path = os.path.realpath(os.path.join(bin_dir, lib))\n    site.addsitedir(path.decode(\"utf-8\") if \"\" else path)\nsys.path[:] = sys.path[prev_length:] + sys.path[0:prev_length]\nsys.real_prefix = sys.prefix\nsys.prefix = base",
+        "detail": ".venv.bin.activate_this",
+        "documentation": {}
+    },
+    {
+        "label": "prev_length",
+        "kind": 5,
+        "importPath": ".venv.bin.activate_this",
+        "description": ".venv.bin.activate_this",
+        "peekOfCode": "prev_length = len(sys.path)\nfor lib in \"../lib/python3.10/site-packages\".split(os.pathsep):\n    path = os.path.realpath(os.path.join(bin_dir, lib))\n    site.addsitedir(path.decode(\"utf-8\") if \"\" else path)\nsys.path[:] = sys.path[prev_length:] + sys.path[0:prev_length]\nsys.real_prefix = sys.prefix\nsys.prefix = base",
+        "detail": ".venv.bin.activate_this",
+        "documentation": {}
+    },
+    {
+        "label": "sys.path[:]",
+        "kind": 5,
+        "importPath": ".venv.bin.activate_this",
+        "description": ".venv.bin.activate_this",
+        "peekOfCode": "sys.path[:] = sys.path[prev_length:] + sys.path[0:prev_length]\nsys.real_prefix = sys.prefix\nsys.prefix = base",
+        "detail": ".venv.bin.activate_this",
+        "documentation": {}
+    },
+    {
+        "label": "sys.real_prefix",
+        "kind": 5,
+        "importPath": ".venv.bin.activate_this",
+        "description": ".venv.bin.activate_this",
+        "peekOfCode": "sys.real_prefix = sys.prefix\nsys.prefix = base",
+        "detail": ".venv.bin.activate_this",
+        "documentation": {}
+    },
+    {
+        "label": "sys.prefix",
+        "kind": 5,
+        "importPath": ".venv.bin.activate_this",
+        "description": ".venv.bin.activate_this",
+        "peekOfCode": "sys.prefix = base",
+        "detail": ".venv.bin.activate_this",
+        "documentation": {}
+    },
+    {
+        "label": "SQLModelEntity",
+        "kind": 6,
+        "importPath": "python_repository.entity",
+        "description": "python_repository.entity",
+        "peekOfCode": "class SQLModelEntity(SQLModel):\n    \"\"\" Base SQLModel Entity \"\"\"\n    id: int = Field(index=True, primary_key=True)",
+        "detail": "python_repository.entity",
+        "documentation": {}
+    },
+    {
+        "label": "RepositoryException",
+        "kind": 6,
+        "importPath": "python_repository.exceptions",
+        "description": "python_repository.exceptions",
+        "peekOfCode": "class RepositoryException(Exception):\n    \"\"\"Base exception for all repository exceptions\"\"\"\nclass EntityNotFoundException(RepositoryException):\n    \"\"\"Exception raised when an entity is not found\"\"\"\nclass CouldNotCreateEntityException(RepositoryException):\n    \"\"\"Exception raised when an entity could not be created\"\"\"\nclass CouldNotDeleteEntityException(RepositoryException):\n    \"\"\"Exception raised when an entity could not be deleted\"\"\"",
+        "detail": "python_repository.exceptions",
+        "documentation": {}
+    },
+    {
+        "label": "EntityNotFoundException",
+        "kind": 6,
+        "importPath": "python_repository.exceptions",
+        "description": "python_repository.exceptions",
+        "peekOfCode": "class EntityNotFoundException(RepositoryException):\n    \"\"\"Exception raised when an entity is not found\"\"\"\nclass CouldNotCreateEntityException(RepositoryException):\n    \"\"\"Exception raised when an entity could not be created\"\"\"\nclass CouldNotDeleteEntityException(RepositoryException):\n    \"\"\"Exception raised when an entity could not be deleted\"\"\"",
+        "detail": "python_repository.exceptions",
+        "documentation": {}
+    },
+    {
+        "label": "CouldNotCreateEntityException",
+        "kind": 6,
+        "importPath": "python_repository.exceptions",
+        "description": "python_repository.exceptions",
+        "peekOfCode": "class CouldNotCreateEntityException(RepositoryException):\n    \"\"\"Exception raised when an entity could not be created\"\"\"\nclass CouldNotDeleteEntityException(RepositoryException):\n    \"\"\"Exception raised when an entity could not be deleted\"\"\"",
+        "detail": "python_repository.exceptions",
+        "documentation": {}
+    },
+    {
+        "label": "CouldNotDeleteEntityException",
+        "kind": 6,
+        "importPath": "python_repository.exceptions",
+        "description": "python_repository.exceptions",
+        "peekOfCode": "class CouldNotDeleteEntityException(RepositoryException):\n    \"\"\"Exception raised when an entity could not be deleted\"\"\"",
+        "detail": "python_repository.exceptions",
+        "documentation": {}
+    },
+    {
+        "label": "BaseRepository",
+        "kind": 6,
+        "importPath": "python_repository.repository",
+        "description": "python_repository.repository",
+        "peekOfCode": "class BaseRepository(Generic[GenericEntity], ABC):\n    \"\"\"Abstract base class for all repositories\"\"\"\n    entity: GenericEntity\n    def __init__(self, get_session: Callable[..., Generator[Session, None, None]]) -> None:\n        self.get_session = get_session\n    @contextmanager\n    def session(self) -> Generator[Session, None, None]:\n        \"\"\"Context manager that provides a session to the caller\"\"\"\n        session = next(self.get_session())\n        try:",
+        "detail": "python_repository.repository",
+        "documentation": {}
+    },
+    {
+        "label": "Repository",
+        "kind": 6,
+        "importPath": "python_repository.repository",
+        "description": "python_repository.repository",
+        "peekOfCode": "class Repository(Generic[GenericEntity], BaseRepository[GenericEntity], ABC):\n    \"\"\"Abstract base class for repository implementations\"\"\"\n    def create(self, entity: GenericEntity) -> GenericEntity:\n        \"\"\"Creates an entity to the repository\n        Args:\n            entity (GenericEntity): The entity to add\n        Returns:\n            GenericEntity: The added entity\n        \"\"\"\n        return self._create(entity=entity)",
+        "detail": "python_repository.repository",
+        "documentation": {}
+    },
+    {
+        "label": "GenericEntity",
+        "kind": 5,
+        "importPath": "python_repository.repository",
+        "description": "python_repository.repository",
+        "peekOfCode": "GenericEntity = TypeVar(\"GenericEntity\", SQLModelEntity, SQLModelEntity)  # must be multiple constraints\nclass BaseRepository(Generic[GenericEntity], ABC):\n    \"\"\"Abstract base class for all repositories\"\"\"\n    entity: GenericEntity\n    def __init__(self, get_session: Callable[..., Generator[Session, None, None]]) -> None:\n        self.get_session = get_session\n    @contextmanager\n    def session(self) -> Generator[Session, None, None]:\n        \"\"\"Context manager that provides a session to the caller\"\"\"\n        session = next(self.get_session())",
+        "detail": "python_repository.repository",
+        "documentation": {}
+    },
+    {
+        "label": "PetType",
+        "kind": 6,
+        "importPath": "tests.integration.scenario.entities",
+        "description": "tests.integration.scenario.entities",
+        "peekOfCode": "class PetType(Enum):\n    \"\"\" Enum that describes the type of pet \"\"\"\n    DOG = \"dog\"\n    CAT = \"cat\"\n    FISH = \"fish\"\nclass Pet(SQLModelEntity, table=True):\n    \"\"\" Pet model \"\"\"\n    name: str\n    age: int\n    type: PetType",
+        "detail": "tests.integration.scenario.entities",
+        "documentation": {}
+    },
+    {
+        "label": "Pet",
+        "kind": 6,
+        "importPath": "tests.integration.scenario.entities",
+        "description": "tests.integration.scenario.entities",
+        "peekOfCode": "class Pet(SQLModelEntity, table=True):\n    \"\"\" Pet model \"\"\"\n    name: str\n    age: int\n    type: PetType\n    shelter_id: int = Field(foreign_key=\"shelter.id\")\n    shelter: \"Shelter\" = Relationship(back_populates=\"pets\")\nclass Shelter(SQLModelEntity, table=True):\n    \"\"\" Shelter model \"\"\"\n    name: str",
+        "detail": "tests.integration.scenario.entities",
+        "documentation": {}
+    },
+    {
+        "label": "Shelter",
+        "kind": 6,
+        "importPath": "tests.integration.scenario.entities",
+        "description": "tests.integration.scenario.entities",
+        "peekOfCode": "class Shelter(SQLModelEntity, table=True):\n    \"\"\" Shelter model \"\"\"\n    name: str\n    pets: list[Pet] = Relationship(back_populates=\"shelter\")\nmodel_metadata = SQLModelEntity.metadata",
+        "detail": "tests.integration.scenario.entities",
+        "documentation": {}
+    },
+    {
+        "label": "model_metadata",
+        "kind": 5,
+        "importPath": "tests.integration.scenario.entities",
+        "description": "tests.integration.scenario.entities",
+        "peekOfCode": "model_metadata = SQLModelEntity.metadata",
+        "detail": "tests.integration.scenario.entities",
+        "documentation": {}
+    },
+    {
+        "label": "PetRepository",
+        "kind": 6,
+        "importPath": "tests.integration.scenario.repositories",
+        "description": "tests.integration.scenario.repositories",
+        "peekOfCode": "class PetRepository(Repository[Pet]):\n    \"\"\" Repository to manage pets \"\"\"\nclass ShelterRepository(Repository[Shelter]):\n    \"\"\" Repository to manage shelters \"\"\"",
+        "detail": "tests.integration.scenario.repositories",
+        "documentation": {}
+    },
+    {
+        "label": "ShelterRepository",
+        "kind": 6,
+        "importPath": "tests.integration.scenario.repositories",
+        "description": "tests.integration.scenario.repositories",
+        "peekOfCode": "class ShelterRepository(Repository[Shelter]):\n    \"\"\" Repository to manage shelters \"\"\"",
+        "detail": "tests.integration.scenario.repositories",
+        "documentation": {}
+    },
+    {
+        "label": "TestSQLModelRepositoryWithDatabase",
+        "kind": 6,
+        "importPath": "tests.integration.test_repository_with_database",
+        "description": "tests.integration.test_repository_with_database",
+        "peekOfCode": "class TestSQLModelRepositoryWithDatabase:\n    #\n    # Fixtures\n    #\n    @pytest.fixture\n    def dog(self, database_session: Session, shelter_alpha: Shelter) -> Pet:\n        dog = PetRepository.create(Pet(name=\"Fido\", age=3, type=PetType.DOG, shelter_id=shelter_alpha.id), session=database_session)\n        yield dog\n        PetRepository.delete(entity=dog, session=database_session)\n    @pytest.fixture",
+        "detail": "tests.integration.test_repository_with_database",
+        "documentation": {}
+    },
+    {
+        "label": "TestSQLModelEntity",
+        "kind": 6,
+        "importPath": "tests.unit.test_entity",
+        "description": "tests.unit.test_entity",
+        "peekOfCode": "class TestSQLModelEntity:\n    class TestEntity(SQLModelEntity):\n        attribute: str\n    @pytest.fixture\n    def entity(self) -> TestEntity:\n        return self.TestEntity(id=1, attribute=\"test_attribute\")\n    def test_entity_type(self, entity: TestEntity):\n        assert isinstance(entity, self.TestEntity)\n        assert isinstance(entity, SQLModelEntity)\n    def test_entity_has_id(self, entity: TestEntity):",
+        "detail": "tests.unit.test_entity",
+        "documentation": {}
+    },
+    {
+        "label": "TestSQLModelRepository",
+        "kind": 6,
+        "importPath": "tests.unit.test_repository",
+        "description": "tests.unit.test_repository",
+        "peekOfCode": "class TestSQLModelRepository:\n    class TestEntity(SQLModelEntity, table=True):\n        attribute: str\n    def test_create_repository(self):\n        class TestRepository(Repository[self.TestEntity]):\n            pass\n        assert TestRepository._entity_class() == self.TestEntity\n    @pytest.mark.parametrize(\"invalid_entity_class\", [int, str, bool, list, Repository])\n    def test_create_repository_fail_invalid_entity_class(self, invalid_entity_class: type):\n        class TestRepository(Repository[invalid_entity_class]):",
+        "detail": "tests.unit.test_repository",
+        "documentation": {}
+    },
+    {
+        "label": "POSTGRESQL_USER",
+        "kind": 5,
+        "importPath": "tests.config",
+        "description": "tests.config",
+        "peekOfCode": "POSTGRESQL_USER = \"postgres\"\nPOSTGRESQL_PASSWORD = \"postgres\"\nPOSTGRESQL_HOST = \"localhost\"\nPOSTGRESQL_PORT = \"2345\"\nPOSTGRESQL_DATABASE = \"test\"\nPOSTGRESQL_DATABASE_URI = f\"postgresql://{POSTGRESQL_USER}:{POSTGRESQL_PASSWORD}@{POSTGRESQL_HOST}:{POSTGRESQL_PORT}/{POSTGRESQL_DATABASE}\"\nSQLITE_DATABASE_URI = \"sqlite:///test.db\"  # in-memory database does not support multi-session",
+        "detail": "tests.config",
+        "documentation": {}
+    },
+    {
+        "label": "POSTGRESQL_PASSWORD",
+        "kind": 5,
+        "importPath": "tests.config",
+        "description": "tests.config",
+        "peekOfCode": "POSTGRESQL_PASSWORD = \"postgres\"\nPOSTGRESQL_HOST = \"localhost\"\nPOSTGRESQL_PORT = \"2345\"\nPOSTGRESQL_DATABASE = \"test\"\nPOSTGRESQL_DATABASE_URI = f\"postgresql://{POSTGRESQL_USER}:{POSTGRESQL_PASSWORD}@{POSTGRESQL_HOST}:{POSTGRESQL_PORT}/{POSTGRESQL_DATABASE}\"\nSQLITE_DATABASE_URI = \"sqlite:///test.db\"  # in-memory database does not support multi-session",
+        "detail": "tests.config",
+        "documentation": {}
+    },
+    {
+        "label": "POSTGRESQL_HOST",
+        "kind": 5,
+        "importPath": "tests.config",
+        "description": "tests.config",
+        "peekOfCode": "POSTGRESQL_HOST = \"localhost\"\nPOSTGRESQL_PORT = \"2345\"\nPOSTGRESQL_DATABASE = \"test\"\nPOSTGRESQL_DATABASE_URI = f\"postgresql://{POSTGRESQL_USER}:{POSTGRESQL_PASSWORD}@{POSTGRESQL_HOST}:{POSTGRESQL_PORT}/{POSTGRESQL_DATABASE}\"\nSQLITE_DATABASE_URI = \"sqlite:///test.db\"  # in-memory database does not support multi-session",
+        "detail": "tests.config",
+        "documentation": {}
+    },
+    {
+        "label": "POSTGRESQL_PORT",
+        "kind": 5,
+        "importPath": "tests.config",
+        "description": "tests.config",
+        "peekOfCode": "POSTGRESQL_PORT = \"2345\"\nPOSTGRESQL_DATABASE = \"test\"\nPOSTGRESQL_DATABASE_URI = f\"postgresql://{POSTGRESQL_USER}:{POSTGRESQL_PASSWORD}@{POSTGRESQL_HOST}:{POSTGRESQL_PORT}/{POSTGRESQL_DATABASE}\"\nSQLITE_DATABASE_URI = \"sqlite:///test.db\"  # in-memory database does not support multi-session",
+        "detail": "tests.config",
+        "documentation": {}
+    },
+    {
+        "label": "POSTGRESQL_DATABASE",
+        "kind": 5,
+        "importPath": "tests.config",
+        "description": "tests.config",
+        "peekOfCode": "POSTGRESQL_DATABASE = \"test\"\nPOSTGRESQL_DATABASE_URI = f\"postgresql://{POSTGRESQL_USER}:{POSTGRESQL_PASSWORD}@{POSTGRESQL_HOST}:{POSTGRESQL_PORT}/{POSTGRESQL_DATABASE}\"\nSQLITE_DATABASE_URI = \"sqlite:///test.db\"  # in-memory database does not support multi-session",
+        "detail": "tests.config",
+        "documentation": {}
+    },
+    {
+        "label": "POSTGRESQL_DATABASE_URI",
+        "kind": 5,
+        "importPath": "tests.config",
+        "description": "tests.config",
+        "peekOfCode": "POSTGRESQL_DATABASE_URI = f\"postgresql://{POSTGRESQL_USER}:{POSTGRESQL_PASSWORD}@{POSTGRESQL_HOST}:{POSTGRESQL_PORT}/{POSTGRESQL_DATABASE}\"\nSQLITE_DATABASE_URI = \"sqlite:///test.db\"  # in-memory database does not support multi-session",
+        "detail": "tests.config",
+        "documentation": {}
+    },
+    {
+        "label": "SQLITE_DATABASE_URI",
+        "kind": 5,
+        "importPath": "tests.config",
+        "description": "tests.config",
+        "peekOfCode": "SQLITE_DATABASE_URI = \"sqlite:///test.db\"  # in-memory database does not support multi-session",
+        "detail": "tests.config",
+        "documentation": {}
+    },
+    {
+        "label": "Databases",
+        "kind": 6,
+        "importPath": "tests.conftest",
+        "description": "tests.conftest",
+        "peekOfCode": "class Databases(Enum):\n    \"\"\" Enum of the databases \"\"\"\n    # POSTGRESQL = \"postgresql\"\n    SQLITE = \"sqlite\"\ndef build_setup(database: Databases) -> DatabaseSetup:\n    \"\"\" Build the setups for the databases \"\"\"\n    database_uri = {\n        # Databases.POSTGRESQL: POSTGRESQL_DATABASE_URI,\n        Databases.SQLITE: SQLITE_DATABASE_URI\n    }.get(database)",
+        "detail": "tests.conftest",
+        "documentation": {}
+    },
+    {
+        "label": "build_setup",
+        "kind": 2,
+        "importPath": "tests.conftest",
+        "description": "tests.conftest",
+        "peekOfCode": "def build_setup(database: Databases) -> DatabaseSetup:\n    \"\"\" Build the setups for the databases \"\"\"\n    database_uri = {\n        # Databases.POSTGRESQL: POSTGRESQL_DATABASE_URI,\n        Databases.SQLITE: SQLITE_DATABASE_URI\n    }.get(database)\n    return DatabaseSetup(model_metadata=model_metadata, database_uri=database_uri)\nsetups = [build_setup(database=database) for database in Databases]\nsession_managers = [SessionManager(database_uri=setup.database_uri) for setup in setups]\n# pylint: disable=unused-argument",
+        "detail": "tests.conftest",
+        "documentation": {}
+    },
+    {
+        "label": "pytest_sessionstart",
+        "kind": 2,
+        "importPath": "tests.conftest",
+        "description": "tests.conftest",
+        "peekOfCode": "def pytest_sessionstart(session):\n    \"\"\" Create or reset the databases before the tests \"\"\"\n    for setup in setups:\n        setup.drop_database()\n        setup.create_database()",
+        "detail": "tests.conftest",
+        "documentation": {}
+    },
+    {
+        "label": "setups",
+        "kind": 5,
+        "importPath": "tests.conftest",
+        "description": "tests.conftest",
+        "peekOfCode": "setups = [build_setup(database=database) for database in Databases]\nsession_managers = [SessionManager(database_uri=setup.database_uri) for setup in setups]\n# pylint: disable=unused-argument\n# noinspection PyUnusedLocal\ndef pytest_sessionstart(session):\n    \"\"\" Create or reset the databases before the tests \"\"\"\n    for setup in setups:\n        setup.drop_database()\n        setup.create_database()",
+        "detail": "tests.conftest",
+        "documentation": {}
+    },
+    {
+        "label": "session_managers",
+        "kind": 5,
+        "importPath": "tests.conftest",
+        "description": "tests.conftest",
+        "peekOfCode": "session_managers = [SessionManager(database_uri=setup.database_uri) for setup in setups]\n# pylint: disable=unused-argument\n# noinspection PyUnusedLocal\ndef pytest_sessionstart(session):\n    \"\"\" Create or reset the databases before the tests \"\"\"\n    for setup in setups:\n        setup.drop_database()\n        setup.create_database()",
+        "detail": "tests.conftest",
+        "documentation": {}
+    }
+]
