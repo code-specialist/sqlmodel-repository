@@ -1,7 +1,8 @@
 from abc import ABC
 from contextlib import contextmanager
+
 from functools import lru_cache
-from typing import Callable, Generator, TypeVar, Generic, Type, get_args, List
+from typing import Generator, TypeVar, Generic, Type, get_args, List
 
 from sqlalchemy.orm import Session
 from sqlmodel import col
@@ -17,13 +18,10 @@ class BaseRepository(Generic[GenericEntity], ABC):
 
     entity: GenericEntity
 
-    def __init__(self, get_session: Callable[..., Generator[Session, None, None]]) -> None:
-        self.get_session = get_session
-
     @contextmanager
     def session(self) -> Generator[Session, None, None]:
         """Context manager that provides a session to the caller"""
-        session = next(self.get_session())
+        session = next(get_session())  # TODO Fix this once the other package is finished
         try:
             yield session
         except:
@@ -43,7 +41,6 @@ class BaseRepository(Generic[GenericEntity], ABC):
             Entity: The updated entity
         """
         with self.session() as session:
-
             for key, value in kwargs.items():
                 if value is not None:
                     setattr(entity, key, value)
@@ -135,7 +132,7 @@ class BaseRepository(Generic[GenericEntity], ABC):
         if not issubclass(entity_class, SQLModelEntity):
             raise TypeError(f"Entity class {entity_class} for {cls.__name__} must be a subclass of {SQLModelEntity}")
 
-        return entity_class
+        return entity_class  # TODO: Expression of type "Type[SQLModelEntity]" cannot be assigned to return type "Type[GenericEntity@BaseRepository]"
 
 
 class Repository(Generic[GenericEntity], BaseRepository[GenericEntity], ABC):

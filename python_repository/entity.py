@@ -2,6 +2,6 @@ from sqlmodel import SQLModel, Field
 
 
 class SQLModelEntity(SQLModel):
-    """ Base SQLModel Entity """
+    """Base SQLModel Entity"""
 
-    id: int = Field(index=True, primary_key=True)
+    id: int = Field(index=True, default=None, primary_key=True)

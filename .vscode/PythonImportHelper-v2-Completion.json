@@ -91,14 +91,6 @@
         "documentation": {}
     },
     {
-        "label": "Callable",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
         "label": "Generator",
         "importPath": "typing",
         "description": "typing",
@@ -140,6 +132,14 @@
     },
     {
         "label": "List",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Generator",
         "importPath": "typing",
         "description": "typing",
         "isExtraImport": true,
@@ -192,14 +192,6 @@
         "description": "python_repository.exceptions",
         "isExtraImport": true,
         "detail": "python_repository.exceptions",
-        "documentation": {}
-    },
-    {
-        "label": "Enum",
-        "importPath": "enum",
-        "description": "enum",
-        "isExtraImport": true,
-        "detail": "enum",
         "documentation": {}
     },
     {
@@ -316,7 +308,7 @@
         "documentation": {}
     },
     {
-        "label": "session_managers",
+        "label": "RepositoryTest",
         "importPath": "tests.conftest",
         "description": "tests.conftest",
         "isExtraImport": true,
@@ -340,14 +332,6 @@
         "documentation": {}
     },
     {
-        "label": "SessionManager",
-        "importPath": "database_setup_tools.session_manager",
-        "description": "database_setup_tools.session_manager",
-        "isExtraImport": true,
-        "detail": "database_setup_tools.session_manager",
-        "documentation": {}
-    },
-    {
         "label": "DatabaseSetup",
         "importPath": "database_setup_tools.setup",
         "description": "database_setup_tools.setup",
@@ -356,7 +340,7 @@
         "documentation": {}
     },
     {
-        "label": "SQLITE_DATABASE_URI",
+        "label": "POSTGRESQL_DATABASE_URI",
         "importPath": "tests.config",
         "description": "tests.config",
         "isExtraImport": true,
@@ -440,7 +424,7 @@
         "kind": 6,
         "importPath": "python_repository.entity",
         "description": "python_repository.entity",
-        "peekOfCode": "class SQLModelEntity(SQLModel):\n    \"\"\" Base SQLModel Entity \"\"\"\n    id: int = Field(index=True, primary_key=True)",
+        "peekOfCode": "class SQLModelEntity(SQLModel):\n    \"\"\"Base SQLModel Entity\"\"\"\n    id: int = Field(index=True, default=None, primary_key=True)",
         "detail": "python_repository.entity",
         "documentation": {}
     },
@@ -485,7 +469,7 @@
         "kind": 6,
         "importPath": "python_repository.repository",
         "description": "python_repository.repository",
-        "peekOfCode": "class BaseRepository(Generic[GenericEntity], ABC):\n    \"\"\"Abstract base class for all repositories\"\"\"\n    entity: GenericEntity\n    def __init__(self, get_session: Callable[..., Generator[Session, None, None]]) -> None:\n        self.get_session = get_session\n    @contextmanager\n    def session(self) -> Generator[Session, None, None]:\n        \"\"\"Context manager that provides a session to the caller\"\"\"\n        session = next(self.get_session())\n        try:",
+        "peekOfCode": "class BaseRepository(Generic[GenericEntity], ABC):\n    \"\"\"Abstract base class for all repositories\"\"\"\n    entity: GenericEntity\n    @contextmanager\n    def session(self) -> Generator[Session, None, None]:\n        \"\"\"Context manager that provides a session to the caller\"\"\"\n        session = next(get_session())  # TODO Fix this once the other package is finished\n        try:\n            yield session\n        except:",
         "detail": "python_repository.repository",
         "documentation": {}
     },
@@ -503,7 +487,7 @@
         "kind": 5,
         "importPath": "python_repository.repository",
         "description": "python_repository.repository",
-        "peekOfCode": "GenericEntity = TypeVar(\"GenericEntity\", SQLModelEntity, SQLModelEntity)  # must be multiple constraints\nclass BaseRepository(Generic[GenericEntity], ABC):\n    \"\"\"Abstract base class for all repositories\"\"\"\n    entity: GenericEntity\n    def __init__(self, get_session: Callable[..., Generator[Session, None, None]]) -> None:\n        self.get_session = get_session\n    @contextmanager\n    def session(self) -> Generator[Session, None, None]:\n        \"\"\"Context manager that provides a session to the caller\"\"\"\n        session = next(self.get_session())",
+        "peekOfCode": "GenericEntity = TypeVar(\"GenericEntity\", SQLModelEntity, SQLModelEntity)  # must be multiple constraints\nclass BaseRepository(Generic[GenericEntity], ABC):\n    \"\"\"Abstract base class for all repositories\"\"\"\n    entity: GenericEntity\n    @contextmanager\n    def session(self) -> Generator[Session, None, None]:\n        \"\"\"Context manager that provides a session to the caller\"\"\"\n        session = next(get_session())  # TODO Fix this once the other package is finished\n        try:\n            yield session",
         "detail": "python_repository.repository",
         "documentation": {}
     },
@@ -512,7 +496,7 @@
         "kind": 6,
         "importPath": "tests.integration.scenario.entities",
         "description": "tests.integration.scenario.entities",
-        "peekOfCode": "class PetType(Enum):\n    \"\"\" Enum that describes the type of pet \"\"\"\n    DOG = \"dog\"\n    CAT = \"cat\"\n    FISH = \"fish\"\nclass Pet(SQLModelEntity, table=True):\n    \"\"\" Pet model \"\"\"\n    name: str\n    age: int\n    type: PetType",
+        "peekOfCode": "class PetType(Enum):\n    \"\"\"Enum that describes the type of pet\"\"\"\n    DOG = \"dog\"\n    CAT = \"cat\"\n    FISH = \"fish\"\nclass Pet(SQLModelEntity, table=True):\n    \"\"\"Pet model\"\"\"\n    id: int = Field(index=True, default=None, primary_key=True)\n    name: str\n    age: int",
         "detail": "tests.integration.scenario.entities",
         "documentation": {}
     },
@@ -521,7 +505,7 @@
         "kind": 6,
         "importPath": "tests.integration.scenario.entities",
         "description": "tests.integration.scenario.entities",
-        "peekOfCode": "class Pet(SQLModelEntity, table=True):\n    \"\"\" Pet model \"\"\"\n    name: str\n    age: int\n    type: PetType\n    shelter_id: int = Field(foreign_key=\"shelter.id\")\n    shelter: \"Shelter\" = Relationship(back_populates=\"pets\")\nclass Shelter(SQLModelEntity, table=True):\n    \"\"\" Shelter model \"\"\"\n    name: str",
+        "peekOfCode": "class Pet(SQLModelEntity, table=True):\n    \"\"\"Pet model\"\"\"\n    id: int = Field(index=True, default=None, primary_key=True)\n    name: str\n    age: int\n    type: PetType\n    shelter_id: int = Field(foreign_key=\"shelter.id\")\n    shelter: \"Shelter\" = Relationship(back_populates=\"pets\")\nclass Shelter(SQLModelEntity, table=True):\n    \"\"\"Shelter model\"\"\"",
         "detail": "tests.integration.scenario.entities",
         "documentation": {}
     },
@@ -530,7 +514,7 @@
         "kind": 6,
         "importPath": "tests.integration.scenario.entities",
         "description": "tests.integration.scenario.entities",
-        "peekOfCode": "class Shelter(SQLModelEntity, table=True):\n    \"\"\" Shelter model \"\"\"\n    name: str\n    pets: list[Pet] = Relationship(back_populates=\"shelter\")\nmodel_metadata = SQLModelEntity.metadata",
+        "peekOfCode": "class Shelter(SQLModelEntity, table=True):\n    \"\"\"Shelter model\"\"\"\n    id: int = Field(index=True, default=None, primary_key=True)\n    name: str\n    pets: list[Pet] = Relationship(back_populates=\"shelter\")\nmodel_metadata = SQLModelEntity.metadata",
         "detail": "tests.integration.scenario.entities",
         "documentation": {}
     },
@@ -548,7 +532,7 @@
         "kind": 6,
         "importPath": "tests.integration.scenario.repositories",
         "description": "tests.integration.scenario.repositories",
-        "peekOfCode": "class PetRepository(Repository[Pet]):\n    \"\"\" Repository to manage pets \"\"\"\nclass ShelterRepository(Repository[Shelter]):\n    \"\"\" Repository to manage shelters \"\"\"",
+        "peekOfCode": "class PetRepository(Repository[Pet]):\n    \"\"\"Repository to manage pets\"\"\"\nclass ShelterRepository(Repository[Shelter]):\n    \"\"\"Repository to manage shelters\"\"\"",
         "detail": "tests.integration.scenario.repositories",
         "documentation": {}
     },
@@ -557,7 +541,7 @@
         "kind": 6,
         "importPath": "tests.integration.scenario.repositories",
         "description": "tests.integration.scenario.repositories",
-        "peekOfCode": "class ShelterRepository(Repository[Shelter]):\n    \"\"\" Repository to manage shelters \"\"\"",
+        "peekOfCode": "class ShelterRepository(Repository[Shelter]):\n    \"\"\"Repository to manage shelters\"\"\"",
         "detail": "tests.integration.scenario.repositories",
         "documentation": {}
     },
@@ -566,7 +550,7 @@
         "kind": 6,
         "importPath": "tests.integration.test_repository_with_database",
         "description": "tests.integration.test_repository_with_database",
-        "peekOfCode": "class TestSQLModelRepositoryWithDatabase:\n    #\n    # Fixtures\n    #\n    @pytest.fixture\n    def dog(self, database_session: Session, shelter_alpha: Shelter) -> Pet:\n        dog = PetRepository.create(Pet(name=\"Fido\", age=3, type=PetType.DOG, shelter_id=shelter_alpha.id), session=database_session)\n        yield dog\n        PetRepository.delete(entity=dog, session=database_session)\n    @pytest.fixture",
+        "peekOfCode": "class TestSQLModelRepositoryWithDatabase(RepositoryTest):\n    #\n    # Fixtures\n    #\n    @pytest.fixture\n    def dog(self, shelter_alpha: Shelter) -> Pet:\n        _dog = PetRepository().create(Pet(name=\"Fido\", age=3, type=PetType.DOG, shelter_id=shelter_alpha.id))\n        return _dog  # TODO: Expression of type \"SQLModelEntity\" cannot be assigned to return type \"Pet\". Seems like the type hint is not correct\n    @pytest.fixture\n    def cat(self, shelter_alpha: Shelter) -> Pet:",
         "detail": "tests.integration.test_repository_with_database",
         "documentation": {}
     },
@@ -652,20 +636,11 @@
         "documentation": {}
     },
     {
-        "label": "Databases",
+        "label": "RepositoryTest",
         "kind": 6,
         "importPath": "tests.conftest",
         "description": "tests.conftest",
-        "peekOfCode": "class Databases(Enum):\n    \"\"\" Enum of the databases \"\"\"\n    # POSTGRESQL = \"postgresql\"\n    SQLITE = \"sqlite\"\ndef build_setup(database: Databases) -> DatabaseSetup:\n    \"\"\" Build the setups for the databases \"\"\"\n    database_uri = {\n        # Databases.POSTGRESQL: POSTGRESQL_DATABASE_URI,\n        Databases.SQLITE: SQLITE_DATABASE_URI\n    }.get(database)",
-        "detail": "tests.conftest",
-        "documentation": {}
-    },
-    {
-        "label": "build_setup",
-        "kind": 2,
-        "importPath": "tests.conftest",
-        "description": "tests.conftest",
-        "peekOfCode": "def build_setup(database: Databases) -> DatabaseSetup:\n    \"\"\" Build the setups for the databases \"\"\"\n    database_uri = {\n        # Databases.POSTGRESQL: POSTGRESQL_DATABASE_URI,\n        Databases.SQLITE: SQLITE_DATABASE_URI\n    }.get(database)\n    return DatabaseSetup(model_metadata=model_metadata, database_uri=database_uri)\nsetups = [build_setup(database=database) for database in Databases]\nsession_managers = [SessionManager(database_uri=setup.database_uri) for setup in setups]\n# pylint: disable=unused-argument",
+        "peekOfCode": "class RepositoryTest:\n    pass\n# pylint: disable=unused-argument\n# noinspection PyUnusedLocal\ndef pytest_sessionstart(session):\n    \"\"\"Create or reset the databases before the tests\"\"\"\n    setup = DatabaseSetup(\n        model_metadata=model_metadata, database_uri=POSTGRESQL_DATABASE_URI\n    )  # TODO: This is fucked up. The DB Setup fails once the db exists because it creates it by default.\n    setup.drop_database()",
         "detail": "tests.conftest",
         "documentation": {}
     },
@@ -674,25 +649,7 @@
         "kind": 2,
         "importPath": "tests.conftest",
         "description": "tests.conftest",
-        "peekOfCode": "def pytest_sessionstart(session):\n    \"\"\" Create or reset the databases before the tests \"\"\"\n    for setup in setups:\n        setup.drop_database()\n        setup.create_database()",
-        "detail": "tests.conftest",
-        "documentation": {}
-    },
-    {
-        "label": "setups",
-        "kind": 5,
-        "importPath": "tests.conftest",
-        "description": "tests.conftest",
-        "peekOfCode": "setups = [build_setup(database=database) for database in Databases]\nsession_managers = [SessionManager(database_uri=setup.database_uri) for setup in setups]\n# pylint: disable=unused-argument\n# noinspection PyUnusedLocal\ndef pytest_sessionstart(session):\n    \"\"\" Create or reset the databases before the tests \"\"\"\n    for setup in setups:\n        setup.drop_database()\n        setup.create_database()",
-        "detail": "tests.conftest",
-        "documentation": {}
-    },
-    {
-        "label": "session_managers",
-        "kind": 5,
-        "importPath": "tests.conftest",
-        "description": "tests.conftest",
-        "peekOfCode": "session_managers = [SessionManager(database_uri=setup.database_uri) for setup in setups]\n# pylint: disable=unused-argument\n# noinspection PyUnusedLocal\ndef pytest_sessionstart(session):\n    \"\"\" Create or reset the databases before the tests \"\"\"\n    for setup in setups:\n        setup.drop_database()\n        setup.create_database()",
+        "peekOfCode": "def pytest_sessionstart(session):\n    \"\"\"Create or reset the databases before the tests\"\"\"\n    setup = DatabaseSetup(\n        model_metadata=model_metadata, database_uri=POSTGRESQL_DATABASE_URI\n    )  # TODO: This is fucked up. The DB Setup fails once the db exists because it creates it by default.\n    setup.drop_database()\n    setup.create_database()",
         "detail": "tests.conftest",
         "documentation": {}
     }
