@@ -3,8 +3,8 @@ from tests.integration.scenario.entities import Pet, Shelter
 
 
 class PetRepository(Repository[Pet]):
-    """ Repository to manage pets """
+    """Repository to manage pets"""
 
 
 class ShelterRepository(Repository[Shelter]):
-    """ Repository to manage shelters """
+    """Repository to manage shelters"""

@@ -1,78 +1,72 @@
+from typing import Generator
 import pytest
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
+from tests.conftest import RepositoryTest
 
-from tests.conftest import session_managers
 from tests.integration.scenario.entities import Pet, Shelter, PetType
 from tests.integration.scenario.repositories import PetRepository, ShelterRepository
 
 
-# pylint: disable=unused-argument,missing-class-docstring,missing-function-docstring
-@pytest.mark.parametrize("database_session", [next(session_manager.get_session()) for session_manager in session_managers])
-class TestSQLModelRepositoryWithDatabase:
+class TestSQLModelRepositoryWithDatabase(RepositoryTest):
 
     #
     # Fixtures
     #
 
     @pytest.fixture
-    def dog(self, database_session: Session, shelter_alpha: Shelter) -> Pet:
-        dog = PetRepository.create(Pet(name="Fido", age=3, type=PetType.DOG, shelter_id=shelter_alpha.id), session=database_session)
-        yield dog
-        PetRepository.delete(entity=dog, session=database_session)
+    def dog(self, shelter_alpha: Shelter) -> Pet:
+        _dog = PetRepository().create(Pet(name="Fido", age=3, type=PetType.DOG, shelter_id=shelter_alpha.id))
+        return _dog  # TODO: Expression of type "SQLModelEntity" cannot be assigned to return type "Pet". Seems like the type hint is not correct
 
     @pytest.fixture
-    def cat(self, database_session: Session, shelter_alpha: Shelter) -> Pet:
-        cat = PetRepository.create(Pet(name="Felix", age=2, type=PetType.CAT, shelter_id=shelter_alpha.id), session=database_session)
-        yield cat
-        PetRepository.delete(entity=cat, session=database_session)
+    def cat(self, shelter_alpha: Shelter) -> Pet:
+        _cat = PetRepository().create(Pet(name="Felix", age=2, type=PetType.CAT, shelter_id=shelter_alpha.id))
+        return _cat  # TODO: Expression of type "SQLModelEntity" cannot be assigned to return type "Pet". Seems like the type hint is not correct
 
     @pytest.fixture
-    def fish(self, database_session: Session, shelter_alpha: Shelter) -> Pet:
-        fish = PetRepository.create(Pet(name="Nemo", age=1, type=PetType.FISH, shelter_id=shelter_alpha.id), session=database_session)
-        yield fish
-        PetRepository.delete(entity=fish, session=database_session)
+    def fish(self, shelter_alpha: Shelter) -> Pet:
+        _fish = PetRepository().create(Pet(name="Nemo", age=1, type=PetType.FISH, shelter_id=shelter_alpha.id))
+        return _fish  # TODO: Expression of type "SQLModelEntity" cannot be assigned to return type "Pet". Seems like the type hint is not correct
 
     @pytest.fixture
-    def shelter_alpha(self, database_session: Session) -> Shelter:
-        shelter = ShelterRepository.create(entity=Shelter(name="Shelter Alpha"), session=database_session)
-        yield shelter
-        ShelterRepository.delete(entity=shelter, session=database_session)
+    def shelter_alpha(self) -> Shelter:
+        _shelter = ShelterRepository().create(entity=Shelter(name="Shelter Alpha"))
+        return _shelter  # TODO: Expression of type "SQLModelEntity" cannot be assigned to return type "Shelter". Seems like the type hint is not correct
 
     @pytest.fixture
-    def shelter_beta(self, database_session: Session) -> Shelter:
-        shelter = ShelterRepository.create(entity=Shelter(name="Shelter Alpha"), session=database_session)
-        yield shelter
-        ShelterRepository.delete(entity=shelter, session=database_session)
+    def shelter_beta(self) -> Shelter:
+        _shelter = ShelterRepository().create(entity=Shelter(name="Shelter Alpha"))
+        return _shelter  # TODO: Expression of type "SQLModelEntity" cannot be assigned to return type "Shelter". Seems like the type hint is not correct
 
     #
     # Tests
     #
 
     @staticmethod
-    def test_create(database_session: Session):
-        shelter = ShelterRepository.create(entity=Shelter(name="Shelter Alpha"), session=database_session)
+    def test_create():
+        shelter = ShelterRepository().create(entity=Shelter(name="Shelter Alpha"))
 
-        assert ShelterRepository.get(entity_id=shelter.id, session=database_session) == shelter
+        assert ShelterRepository().get(entity_id=shelter.id) == shelter
 
-        ShelterRepository.delete(entity=shelter, session=database_session)
-
-    @staticmethod
-    def test_create_with_relation(shelter_alpha: Shelter, database_session: Session):
-        cat = PetRepository.create(Pet(name="Fido", age=3, type=PetType.CAT, shelter_id=shelter_alpha.id), session=database_session)
-
-        assert PetRepository.get(entity_id=cat.id, session=database_session) == cat
-        assert cat.shelter == shelter_alpha
-
-        PetRepository.delete(entity=cat, session=database_session)
+        ShelterRepository().delete(entity=shelter)
 
     @staticmethod
-    def test_get(shelter_alpha: Shelter, database_session: Session, dog: Pet):
-        assert PetRepository.get(entity_id=dog.id, session=database_session) == dog
+    def test_create_with_relation(shelter_alpha: Shelter):
+        cat = PetRepository().create(Pet(name="Fido", age=3, type=PetType.CAT, shelter_id=shelter_alpha.id))
+
+        assert PetRepository().get(entity_id=cat.id) == cat
+        assert cat.shelter == shelter_alpha  # TODO: Cannot access member "shelter" for type "SQLModelEntity". Seems like the type hint is not correct
+
+        PetRepository().delete(entity=cat)
 
     @staticmethod
-    def test_get_batch(shelter_alpha: Shelter, database_session: Session, dog: Pet, cat: Pet, fish: Pet):
-        pets = PetRepository.get_batch(entity_ids=[dog.id, cat.id], session=database_session)
+    def test_get(dog: Pet):
+        assert PetRepository().get(entity_id=dog.id) == dog
+
+    @staticmethod
+    def test_get_batch(dog: Pet, cat: Pet, fish: Pet):
+        pets = PetRepository().get_batch(entity_ids=[dog.id, cat.id])
 
         assert isinstance(pets, list)
         assert len(pets) == 2
@@ -81,8 +75,8 @@ class TestSQLModelRepositoryWithDatabase:
         assert fish not in pets
 
     @staticmethod
-    def test_get_all(shelter_alpha: Shelter, database_session: Session, dog: Pet, cat: Pet, fish: Pet):
-        pets = PetRepository.get_all(session=database_session)
+    def test_get_all(dog: Pet, cat: Pet, fish: Pet):
+        pets = PetRepository().get_all()
 
         assert isinstance(pets, list)
         assert len(pets) == 3
@@ -91,55 +85,55 @@ class TestSQLModelRepositoryWithDatabase:
         assert fish in pets
 
     @staticmethod
-    def test_update(shelter_alpha: Shelter, cat: Pet, database_session: Session):
+    def test_update(shelter_alpha: Shelter, cat: Pet):
         modified_cat = Pet(id=cat.id, name="Fidolina", age=12, type=PetType.CAT, shelter_id=shelter_alpha.id)
 
-        updated_cat = PetRepository.update(entity=cat, updates=modified_cat, session=database_session)
+        updated_cat = PetRepository().update(entity=cat, updates=modified_cat)
 
-        assert modified_cat == updated_cat == PetRepository.get(entity_id=cat.id, session=database_session)
+        assert modified_cat == updated_cat == PetRepository().get(entity_id=cat.id)
 
-        PetRepository.delete(entity=cat, session=database_session)
+        PetRepository().delete(entity=cat)
 
     @staticmethod
-    def test_update_by_id(shelter_alpha: Shelter, cat: Pet, database_session: Session):
+    def test_update_by_id(shelter_alpha: Shelter, cat: Pet):
         modified_cat = Pet(id=cat.id, name="Fidolina", age=12, type=PetType.CAT, shelter_id=shelter_alpha.id)
 
-        updated_cat = PetRepository.update_by_id(entity_id=cat.id, updates=modified_cat, session=database_session)
+        updated_cat = PetRepository().update_by_id(entity_id=cat.id, updates=modified_cat)
 
-        assert modified_cat == updated_cat == PetRepository.get(entity_id=cat.id, session=database_session)
+        assert modified_cat == updated_cat == PetRepository().get(entity_id=cat.id)
 
-        PetRepository.delete(entity=cat, session=database_session)
+        PetRepository().delete(entity=cat)
 
     @staticmethod
-    def test_delete(database_session: Session, dog: Pet, shelter_alpha: Shelter):
-        PetRepository.delete(entity=dog, session=database_session)
+    def test_delete(dog: Pet):
+        PetRepository().delete(entity=dog)
 
         with pytest.raises(NoResultFound):
-            PetRepository.get(entity_id=dog.id, session=database_session)
+            PetRepository().get(entity_id=dog.id)
 
     @staticmethod
-    def test_delete_by_id(database_session: Session, dog: Pet, shelter_alpha: Shelter):
-        PetRepository.delete_by_id(entity_id=dog.id, session=database_session)
+    def test_delete_by_id(dog: Pet):
+        PetRepository().delete_by_id(entity_id=dog.id)
 
         with pytest.raises(NoResultFound):
-            PetRepository.get(entity_id=dog.id, session=database_session)
+            PetRepository().get(entity_id=dog.id)
 
     @staticmethod
-    def test_delete_batch(database_session: Session, shelter_alpha: Shelter):
-        dog = PetRepository.create(Pet(name="Fido", age=3, type=PetType.DOG, shelter_id=shelter_alpha.id), session=database_session)
-        cat = PetRepository.create(Pet(name="Felix", age=2, type=PetType.CAT, shelter_id=shelter_alpha.id), session=database_session)
-        fish = PetRepository.create(Pet(name="Nemo", age=1, type=PetType.FISH, shelter_id=shelter_alpha.id), session=database_session)
+    def test_delete_batch(shelter_alpha: Shelter):
+        dog = PetRepository().create(Pet(name="Fido", age=3, type=PetType.DOG, shelter_id=shelter_alpha.id))
+        cat = PetRepository().create(Pet(name="Felix", age=2, type=PetType.CAT, shelter_id=shelter_alpha.id))
+        fish = PetRepository().create(Pet(name="Nemo", age=1, type=PetType.FISH, shelter_id=shelter_alpha.id))
 
-        PetRepository.delete_batch(entities=[dog, cat, fish], session=database_session)
+        PetRepository().delete_batch(entities=[dog, cat, fish])
 
-        assert PetRepository.get_batch(entity_ids=[dog.id, cat.id, fish.id], session=database_session) == []
+        assert PetRepository().get_batch(entity_ids=[dog.id, cat.id, fish.id]) == []
 
     @staticmethod
-    def test_delete_batch_by_ids(database_session: Session, shelter_alpha: Shelter):
-        dog = PetRepository.create(Pet(name="Fido", age=3, type=PetType.DOG, shelter_id=shelter_alpha.id), session=database_session)
-        cat = PetRepository.create(Pet(name="Felix", age=2, type=PetType.CAT, shelter_id=shelter_alpha.id), session=database_session)
-        fish = PetRepository.create(Pet(name="Nemo", age=1, type=PetType.FISH, shelter_id=shelter_alpha.id), session=database_session)
+    def test_delete_batch_by_ids(shelter_alpha: Shelter):
+        dog = PetRepository().create(Pet(name="Fido", age=3, type=PetType.DOG, shelter_id=shelter_alpha.id))
+        cat = PetRepository().create(Pet(name="Felix", age=2, type=PetType.CAT, shelter_id=shelter_alpha.id))
+        fish = PetRepository().create(Pet(name="Nemo", age=1, type=PetType.FISH, shelter_id=shelter_alpha.id))
 
-        PetRepository.delete_batch_by_ids(entity_ids=[dog.id, cat.id, fish.id], session=database_session)
+        PetRepository().delete_batch_by_ids(entity_ids=[dog.id, cat.id, fish.id])
 
-        assert PetRepository.get_batch(entity_ids=[dog.id, cat.id, fish.id], session=database_session) == []
+        assert PetRepository().get_batch(entity_ids=[dog.id, cat.id, fish.id]) == []

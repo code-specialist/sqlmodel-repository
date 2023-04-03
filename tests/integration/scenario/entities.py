@@ -6,14 +6,18 @@ from python_repository import SQLModelEntity
 
 
 class PetType(Enum):
-    """ Enum that describes the type of pet """
+    """Enum that describes the type of pet"""
+
     DOG = "dog"
     CAT = "cat"
     FISH = "fish"
 
 
 class Pet(SQLModelEntity, table=True):
-    """ Pet model """
+    """Pet model"""
+
+    id: int = Field(index=True, default=None, primary_key=True)
+    
     name: str
     age: int
     type: PetType
@@ -22,7 +26,10 @@ class Pet(SQLModelEntity, table=True):
 
 
 class Shelter(SQLModelEntity, table=True):
-    """ Shelter model """
+    """Shelter model"""
+
+    id: int = Field(index=True, default=None, primary_key=True)
+    
     name: str
     pets: list[Pet] = Relationship(back_populates="shelter")
 
