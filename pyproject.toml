@@ -4,14 +4,14 @@ requires = ["poetry-core"]
 
 [tool.poetry]
 authors = ["Jonas Scholl <jonas@code-specialist.com>", "Yannic Schröer <yannic@code-specialist.com>"]
-description = "sqlmodel repository pattern implementation"
+description = "Repository pattern implementation for SQLModel (SQLAlchemy)"
 license = "MIT"
-name = "python-repository"
+name = "sqlmodel-repository"
 readme = "README.md"
 version = "1.0.0"
 
 [tool.poetry.dependencies]
-database-setup-tools = "^1.0.1"
+database-setup-tools = "1.2.0"
 python = "^3.9"
 sqlmodel = "^0.0.8"
 
@@ -23,7 +23,7 @@ pytest = "^7.2.0"
 pytest-cov = "^4.0.0"
 
 [tool.pytest.ini_options]
-addopts = "-x -p no:warnings --cov-report=term-missing --cov-report=term --no-cov-on-fail --cov=python_repository"
+addopts = "-x -p no:warnings --cov-report=term-missing --cov-report=term --no-cov-on-fail --cov=sqlmodel_repository"
 
 [tool.black]
 line-length = 200

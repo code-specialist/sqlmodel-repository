@@ -1,73 +1,99 @@
-from typing import Generator
-
 import pytest
-from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import Session
+from sqlmodel_repository.exceptions import CouldNotCreateEntityException, CouldNotDeleteEntityException, EntityNotFoundException
 
-from tests.conftest import RepositoryTest
-from tests.integration.scenario.entities import Pet, PetType, Shelter
-from tests.integration.scenario.repositories import PetRepository, ShelterRepository
+from tests.integration.scenarios.entities import Pet, PetType, Shelter
+from tests.integration.scenarios.repository.pet import PetRepository
+from tests.integration.scenarios.repository.shelter import ShelterRepository
 
 
-class TestSQLModelRepositoryWithDatabase(RepositoryTest):
+class TestRepositoryWithDatabase:
+    """Integration tests for the Repository class."""
 
     #
     # Fixtures
     #
 
     @pytest.fixture
-    def dog(self, shelter_alpha: Shelter) -> Pet:
-        _dog = PetRepository().create(Pet(name="Fido", age=3, type=PetType.DOG, shelter_id=shelter_alpha.id))
+    def dog(self, pet_repository: PetRepository, shelter_alpha: Shelter) -> Pet:
+        """Fixture to create a dog"""
+        _dog = pet_repository.create(Pet(name="Fido", age=3, type=PetType.DOG, shelter_id=shelter_alpha.id))
         return _dog
 
     @pytest.fixture
-    def cat(self, shelter_alpha: Shelter) -> Pet:
-        _cat = PetRepository().create(Pet(name="Felix", age=2, type=PetType.CAT, shelter_id=shelter_alpha.id))
+    def cat(self, pet_repository: PetRepository, shelter_alpha: Shelter) -> Pet:
+        """Fixture to create a cat"""
+        _cat = pet_repository.create(Pet(name="Felix", age=2, type=PetType.CAT, shelter_id=shelter_alpha.id))
         return _cat
 
     @pytest.fixture
-    def fish(self, shelter_alpha: Shelter) -> Pet:
-        _fish = PetRepository().create(Pet(name="Nemo", age=1, type=PetType.FISH, shelter_id=shelter_alpha.id))
+    def fish(self, pet_repository: PetRepository, shelter_alpha: Shelter) -> Pet:
+        """Fixture to create a fish"""
+        _fish = pet_repository.create(Pet(name="Nemo", age=1, type=PetType.FISH, shelter_id=shelter_alpha.id))
         return _fish
 
     @pytest.fixture
-    def shelter_alpha(self) -> Shelter:
-        _shelter = ShelterRepository().create(entity=Shelter(name="Shelter Alpha"))
+    def shelter_alpha(self, shelter_repository: ShelterRepository) -> Shelter:
+        """Fixture to create a shelter"""
+        _shelter = shelter_repository.create(entity=Shelter(name="Shelter Alpha"))
         return _shelter
 
     @pytest.fixture
-    def shelter_beta(self) -> Shelter:
-        _shelter = ShelterRepository().create(entity=Shelter(name="Shelter Alpha"))
+    def shelter_beta(self, shelter_repository: ShelterRepository) -> Shelter:
+        """Fixture to create a shelter"""
+        _shelter = shelter_repository.create(entity=Shelter(name="Shelter Alpha"))
         return _shelter
+
+    @pytest.fixture
+    def shelter_repository(self) -> ShelterRepository:
+        """Fixture to create a shelter repository. Fake Dependency Injection."""
+        return ShelterRepository()
+
+    @pytest.fixture
+    def pet_repository(self) -> PetRepository:
+        """Fixture to create a pet repository. Fake Dependency Injection."""
+        return PetRepository()
 
     #
     # Tests
     #
 
     @staticmethod
-    def test_create():
-        shelter = ShelterRepository().create(entity=Shelter(name="Shelter Alpha"))
-
-        assert ShelterRepository().get(entity_id=shelter.id) == shelter
-
-        ShelterRepository().delete(entity=shelter)
+    def test_create(shelter_repository: ShelterRepository):
+        """Test to create a new entity"""
+        shelter = shelter_repository.create(entity=Shelter(name="Shelter Alpha"))
+        assert shelter_repository.get(entity_id=shelter.id) == shelter
 
     @staticmethod
-    def test_create_with_relation(shelter_alpha: Shelter):
-        cat = PetRepository().create(Pet(name="Fido", age=3, type=PetType.CAT, shelter_id=shelter_alpha.id))
-
-        assert PetRepository().get(entity_id=cat.id) == cat
-        assert cat.shelter == shelter_alpha
-
-        PetRepository().delete(entity=cat)
+    def test_create_fails(shelter_repository: ShelterRepository):
+        """Test to create a new entity"""
+        with pytest.raises(CouldNotCreateEntityException):
+            shelter_repository.create(entity="Hans Peter the Goldfish")  # type: ignore
 
     @staticmethod
-    def test_get(dog: Pet):
-        assert PetRepository().get(entity_id=dog.id) == dog
+    def test_create_with_relation(pet_repository: PetRepository, shelter_repository: ShelterRepository, shelter_alpha: Shelter):
+        """Test to create a new entity with a relation"""
+        cat = pet_repository.create(entity=Pet(name="Fido", age=3, type=PetType.CAT, shelter_id=shelter_alpha.id))
+        db_cat = pet_repository.get(entity_id=cat.id)
+        assert db_cat.shelter == shelter_alpha
+
+        shelter_alpha = shelter_repository.get(entity_id=shelter_alpha.id)
+        assert cat in shelter_alpha.pets
 
     @staticmethod
-    def test_get_batch(dog: Pet, cat: Pet, fish: Pet):
-        pets = PetRepository().get_batch(entity_ids=[dog.id, cat.id])
+    def test_get(pet_repository: PetRepository, dog: Pet):
+        """Test to get an entity"""
+        assert pet_repository.get(entity_id=dog.id) == dog
+
+    @staticmethod
+    def test_get_not_found(pet_repository: PetRepository):
+        """Test to get an entity"""
+        with pytest.raises(EntityNotFoundException):
+            pet_repository.get(entity_id=1)
+
+    @staticmethod
+    def test_get_batch(pet_repository: PetRepository, dog: Pet, cat: Pet, fish: Pet):
+        """Test to get a batch of entities"""
+        pets = pet_repository.get_batch(entity_ids=[dog.id, cat.id])
 
         assert isinstance(pets, list)
         assert len(pets) == 2
@@ -76,8 +102,9 @@ class TestSQLModelRepositoryWithDatabase(RepositoryTest):
         assert fish not in pets
 
     @staticmethod
-    def test_get_all(dog: Pet, cat: Pet, fish: Pet):
-        pets = PetRepository().get_all()
+    def test_get_all(pet_repository: PetRepository, dog: Pet, cat: Pet, fish: Pet):
+        """Test to get all entities"""
+        pets = pet_repository.get_all()
 
         assert isinstance(pets, list)
         assert len(pets) == 3
@@ -86,55 +113,56 @@ class TestSQLModelRepositoryWithDatabase(RepositoryTest):
         assert fish in pets
 
     @staticmethod
-    def test_update(shelter_alpha: Shelter, cat: Pet):
-        modified_cat = Pet(id=cat.id, name="Fidolina", age=12, type=PetType.CAT, shelter_id=shelter_alpha.id)
-
-        updated_cat = PetRepository().update(entity=cat, updates=modified_cat)
-
-        assert modified_cat == updated_cat == PetRepository().get(entity_id=cat.id)
-
-        PetRepository().delete(entity=cat)
+    def test_update(pet_repository: PetRepository, cat: Pet):
+        """Test to update an entity"""
+        updated_cat = pet_repository.update(entity=cat, name="Fidolina", age=12)
+        assert updated_cat == pet_repository.get(entity_id=cat.id)
 
     @staticmethod
-    def test_update_by_id(shelter_alpha: Shelter, cat: Pet):
-        modified_cat = Pet(id=cat.id, name="Fidolina", age=12, type=PetType.CAT, shelter_id=shelter_alpha.id)
-
-        updated_cat = PetRepository().update_by_id(entity_id=cat.id, updates=modified_cat)
-
-        assert modified_cat == updated_cat == PetRepository().get(entity_id=cat.id)
-
-        PetRepository().delete(entity=cat)
+    def test_update_by_id(pet_repository: PetRepository, cat: Pet):
+        """Test to update an entity by id"""
+        updated_cat = pet_repository.update_by_id(entity_id=cat.id, name="Fidolina", age=12)
+        assert updated_cat == pet_repository.get(entity_id=cat.id)
 
     @staticmethod
-    def test_delete(dog: Pet):
-        PetRepository().delete(entity=dog)
-
-        with pytest.raises(NoResultFound):
-            PetRepository().get(entity_id=dog.id)
-
-    @staticmethod
-    def test_delete_by_id(dog: Pet):
-        PetRepository().delete_by_id(entity_id=dog.id)
-
-        with pytest.raises(NoResultFound):
-            PetRepository().get(entity_id=dog.id)
+    def test_delete(pet_repository: PetRepository, dog: Pet):
+        """Test to delete an entity"""
+        pet_repository.delete(entity=dog)
+        with pytest.raises(EntityNotFoundException):
+            pet_repository.get(entity_id=dog.id)
 
     @staticmethod
-    def test_delete_batch(shelter_alpha: Shelter):
-        dog = PetRepository().create(Pet(name="Fido", age=3, type=PetType.DOG, shelter_id=shelter_alpha.id))
-        cat = PetRepository().create(Pet(name="Felix", age=2, type=PetType.CAT, shelter_id=shelter_alpha.id))
-        fish = PetRepository().create(Pet(name="Nemo", age=1, type=PetType.FISH, shelter_id=shelter_alpha.id))
+    def test_delete_with_cascade(shelter_repository: ShelterRepository, shelter_alpha: Shelter, pet_repository: PetRepository, dog: Pet, cat: Pet, fish: Pet):
+        """Test to delete an entity"""
+        shelter_repository.delete(entity=shelter_alpha)
 
-        PetRepository().delete_batch(entities=[dog, cat, fish])
-
-        assert PetRepository().get_batch(entity_ids=[dog.id, cat.id, fish.id]) == []
+        # Ensure that all pets are deleted as well
+        for pet in [dog, cat, fish]:
+            with pytest.raises(EntityNotFoundException):
+                pet_repository.get(entity_id=pet.id)
 
     @staticmethod
-    def test_delete_batch_by_ids(shelter_alpha: Shelter):
-        dog = PetRepository().create(Pet(name="Fido", age=3, type=PetType.DOG, shelter_id=shelter_alpha.id))
-        cat = PetRepository().create(Pet(name="Felix", age=2, type=PetType.CAT, shelter_id=shelter_alpha.id))
-        fish = PetRepository().create(Pet(name="Nemo", age=1, type=PetType.FISH, shelter_id=shelter_alpha.id))
+    def test_delete_fails(pet_repository: PetRepository):
+        """Test to delete an entity"""
+        with pytest.raises(CouldNotDeleteEntityException):
+            pet_repository.delete(entity="Gundula the Tarantula")  # type: ignore
 
-        PetRepository().delete_batch_by_ids(entity_ids=[dog.id, cat.id, fish.id])
+    @staticmethod
+    def test_delete_by_id(pet_repository: PetRepository, dog: Pet):
+        """Test to delete an entity by id"""
+        pet_repository.delete_by_id(entity_id=dog.id)
+        with pytest.raises(EntityNotFoundException) as exception:
+            pet_repository.get(entity_id=dog.id)
+            assert exception._excinfo == f"Entity with id {dog.id} not found"
 
-        assert PetRepository().get_batch(entity_ids=[dog.id, cat.id, fish.id]) == []
+    @staticmethod
+    def test_delete_batch(pet_repository: PetRepository, dog: Pet, cat: Pet, fish: Pet):
+        """Test to delete a batch of entities"""
+        pet_repository.delete_batch(entities=[dog, cat, fish])
+        assert pet_repository.get_batch(entity_ids=[dog.id, cat.id, fish.id]) == []
+
+    @staticmethod
+    def test_delete_batch_by_ids(pet_repository: PetRepository, dog: Pet, cat: Pet, fish: Pet):
+        """Test to delete a batch of entities by ids"""
+        pet_repository.delete_batch_by_ids(entity_ids=[dog.id, cat.id, fish.id])
+        assert pet_repository.get_batch(entity_ids=[dog.id, cat.id, fish.id]) == []
