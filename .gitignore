@@ -5,3 +5,4 @@
 **/test.db
 .coverage
 .venv
+.vscode/PythonImportHelper-v2-Completion.json

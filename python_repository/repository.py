@@ -1,42 +1,158 @@
 from abc import ABC
+from contextlib import contextmanager
 from functools import lru_cache
-from typing import TypeVar, Generic, Type, get_args, List
+from typing import Generator, Generic, List, Type, TypeVar, get_args
 
 from sqlalchemy.orm import Session
 from sqlmodel import col
 
 from python_repository.entity import SQLModelEntity
+from python_repository.exceptions import CouldNotCreateEntityException, CouldNotDeleteEntityException, EntityNotFoundException
 
-GenericEntity = TypeVar("GenericEntity", SQLModelEntity, SQLModelEntity)  # must be multiple constraints
+GenericEntity = TypeVar("GenericEntity", bound=SQLModelEntity)
 
 
-class Repository(Generic[GenericEntity], ABC):
-    """ Abstract base class for repository implementations """
+class BaseRepository(Generic[GenericEntity], ABC):
+    """Abstract base class for all repositories"""
 
-    @classmethod
-    def create(cls, entity: GenericEntity, session: Session) -> GenericEntity:
-        """ Creates an entity to the repository
+    entity: GenericEntity
+
+    @contextmanager
+    def session(self) -> Generator[Session, None, None]:
+        """Context manager that provides a session to the caller"""
+        session = next(get_session())  # TODO Fix this once the other package is finished
+        try:
+            yield session
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    def _update(self, entity: GenericEntity, **kwargs) -> GenericEntity:
+        """Updates an entity with the given attributes (keyword arguments) if they are not None
 
         Args:
-            session (Session): Database session to use
+            entity (Entity): The entity to update
+            **kwargs: The attributes to update with their new values
+
+        Returns:
+            Entity: The updated entity
+        """
+        with self.session() as session:
+            for key, value in kwargs.items():
+                if value is not None:
+                    setattr(entity, key, value)
+            session.commit()
+            session.refresh(entity)
+
+        return entity
+
+    def _get(self, entity_id: int) -> GenericEntity:
+        """Retrieves an entity from the database with the specified ID.
+
+        Args:
+            entity_id: The ID of the entity to retrieve.
+
+        Returns:
+            A GenericEntity object with the specified ID.
+
+        Raises:
+            EntityNotFoundException: If no entity with the specified ID is found in the database.
+        """
+        with self.session() as session:
+            result = session.query(self.entity).filter(self.entity.id == entity_id).one_or_none()
+
+        if result is None:
+            raise EntityNotFoundException(f"Entity {GenericEntity.__name__} with ID {entity_id} not found")
+
+        return result
+
+    def _get_all(self, filters: list = []) -> list[GenericEntity]:
+        """Retrieves a list of entities from the database that match the specified filters.
+
+        Args:
+            filters: An optional list of attribute-value pairs used to filter the query. Default is an empty list.
+
+        Returns:
+            A list of GenericEntity objects that match the specified filters.
+        """
+        with self.session() as session:
+            return session.query(self.entity).filter_by(*filters).all()
+
+    def _create(self, entity: GenericEntity) -> GenericEntity:
+        """Adds a new entity to the database.
+
+        Args:
+            entity: A GenericEntity object to add to the database.
+
+        Returns:
+            The GenericEntity object that was added to the database, with any auto-generated fields populated.
+
+        Raises:
+            CouldNotCreateEntityException: If there was an error inserting the entity into the database.
+        """
+        with self.session() as session:
+            try:
+                session.add(entity)
+                session.commit()
+                session.refresh(entity)
+                return entity
+            except Exception as exception:
+                raise CouldNotCreateEntityException from exception
+
+    def _delete(self, entity: GenericEntity) -> GenericEntity:
+        """Deletes an entity from the database.
+
+        Args:
+            entity: A GenericEntity object to delete from the database.
+
+        Returns:
+            The GenericEntity object that was deleted from the database.
+
+        Raises:
+            DatabaseError: If there was an error deleting the entity from the database.
+        """
+        with self.session() as session:
+            try:
+                session.delete(entity)
+                session.commit()
+                return entity
+            except Exception as exception:
+                raise CouldNotDeleteEntityException from exception
+
+    @classmethod
+    @lru_cache(maxsize=1)
+    def _entity_class(cls) -> Type[GenericEntity]:
+        """Retrieves the actual entity class at runtime. This function may or may not be victim of future Python changes."""
+        generic_alias = getattr(cls, "__orig_bases__")[0]
+        entity_class = get_args(generic_alias)[0]
+
+        if not issubclass(entity_class, SQLModelEntity):
+            raise TypeError(f"Entity class {entity_class} for {cls.__name__} must be a subclass of {SQLModelEntity}")
+
+        return entity_class  # type: ignore
+
+
+class Repository(BaseRepository[GenericEntity], ABC):
+    """Abstract base class for repository implementations"""
+
+    def create(self, entity: GenericEntity) -> GenericEntity:
+        """Creates an entity to the repository
+
+        Args:
             entity (GenericEntity): The entity to add
 
         Returns:
             GenericEntity: The added entity
         """
-        entity = cls._entity_class()(**entity.__dict__)
-        session.add(entity)
-        session.commit()
-        session.refresh(entity)
-        return entity
+        return self._create(entity=entity)
 
-    @classmethod
-    def get(cls, entity_id: int, session: Session) -> GenericEntity:
-        """ Get an entity by ID
+    def get(self, entity_id: int) -> GenericEntity:
+        """Get an entity by ID
 
         Args:
             entity_id (int): The ID of the entity
-            session (Session): Database session to use
 
         Returns:
             GenericEntity: The entity
@@ -44,144 +160,89 @@ class Repository(Generic[GenericEntity], ABC):
         Raises:
             NoResultFound: If no entity was found
         """
-        return session \
-            .query(cls._entity_class()) \
-            .filter(cls._entity_class().id == entity_id) \
-            .one()
+        return self._get(entity_id=entity_id)
 
-    @classmethod
-    def get_batch(cls, entity_ids: List[int], session: Session) -> List[GenericEntity]:
-        """ Get multiple entities with one query by IDs
+    def get_batch(self, entity_ids: list[int]) -> List[GenericEntity]:
+        """Get multiple entities with one query by IDs
 
         Args:
             entity_ids (List[int]): IDs of the entities
-            session (Session): Database session to use
 
         Returns:
             List[GenericEntity]: The entities that were found in the repository for the given IDs
         """
-        # noinspection PyTypeChecker
-        return session \
-            .query(cls._entity_class()) \
-            .filter(col(cls._entity_class().id).in_(entity_ids)) \
-            .all()
+        filter_ = [col(self._entity_class().id).in_(entity_ids)]
+        return self._get_all(filters=filter_)
 
-    @classmethod
-    def get_all(cls, session: Session) -> List[GenericEntity]:
-        """ Get all entities of the repository
-
-        Args:
-            session (Session): Database session to use
+    def get_all(self) -> List[GenericEntity]:
+        """Get all entities of the repository
 
         Returns:
             List[GenericEntity]: All entities that were found in the repository
         """
-        # noinspection PyTypeChecker
-        return session \
-            .query(cls._entity_class()) \
-            .all()
+        return self._get_all()
 
     # noinspection PyShadowingBuiltins
-    @classmethod
-    def update(cls, entity: GenericEntity, updates: GenericEntity, session: Session, allowed_attributes: List[str] = None) -> GenericEntity:
-        """ Update an entity
+    def update(self, entity: GenericEntity, **kwargs) -> GenericEntity:
+        """Update an entity
 
         Args:
             entity (GenericEntity): Entity to update
-            updates (GenericEntity): Instance containing new values for the entity
-            session (Session): Database session to use
-            allowed_attributes (Optional[List[str]]): List of attributes that are allowed to be updated. If not provided, all attributes are allowed.
+            **kwargs: Any new values
 
         Returns:
             GenericEntity: The updated entity
         """
-        not_allowed_attributes = {"entity_id", "_sa_instance_state"}
-
-        if allowed_attributes is None:
-            allowed_attributes = entity.__dict__.keys()
-
-        for key, value in updates.__dict__.items():
-            if key in allowed_attributes and key not in not_allowed_attributes:
-                setattr(entity, key, value)
-
-        session.commit()
-        session.refresh(entity)
-        return entity
+        return self._update(entity=entity, **kwargs)
 
     # noinspection PyShadowingBuiltins
-    @classmethod
-    def update_by_id(cls, entity_id: int, updates: GenericEntity, session: Session, allowed_attributes: List[str] = None) -> GenericEntity:
-        """ Update an entity
+    def update_by_id(self, entity_id: int, **kwargs) -> GenericEntity:
+        """Update an entity
 
         Args:
             entity_id (int): The entity_id of the entity to update
-            updates (GenericEntity): Instance containing new values for the entity
-            session (Session): Database session to use
-            allowed_attributes (Optional[List[str]]): A List of attributes that are allowed to be updated. If none are provided all attributes are allowed. Defaults to None.
+            **kwargs: Any new values
 
         Returns:
             GenericEntity: The updated entity
         """
-        entity_to_update = cls.get(entity_id=entity_id, session=session)
-        return cls.update(entity=entity_to_update, updates=updates, session=session, allowed_attributes=allowed_attributes)
+        entity_to_update = self.get(entity_id=entity_id)
+        return self.update(entity=entity_to_update, **kwargs)
 
-    @classmethod
-    def delete(cls, entity: GenericEntity, session: Session) -> None:
-        """ Delete an entity
+    def delete(self, entity: GenericEntity) -> None:
+        """Delete an entity
 
         Args:
             entity (GenericEntity): Entity to delete
-            session (Session): Database session to use
         """
-        session.delete(entity)
-        session.commit()
+        self._delete(entity=entity)
 
-    # noinspection PyShadowingBuiltins
-    @classmethod
-    def delete_by_id(cls, entity_id: int, session: Session) -> None:
-        """ Delete an entity by entity_id
+    def delete_by_id(self, entity_id: int) -> None:
+        """Delete an entity by entity_id
 
         Args:
             entity_id (int): ID of the entity
-            session (Session): Database session to use
 
         Raises:
             NoResultFound: If no entity was found
         """
-        entity_to_delete = cls.get(entity_id=entity_id, session=session)
-        cls.delete(entity=entity_to_delete, session=session)
+        entity_to_delete = self.get(entity_id=entity_id)
+        self.delete(entity=entity_to_delete)
 
-    @classmethod
-    def delete_batch(cls, entities: List[GenericEntity], session: Session):
-        """ Delete multiple entities with one commit
+    def delete_batch(self, entities: List[GenericEntity]):
+        """Delete multiple entities with one commit
 
         Args:
             entities (List[GenericEntity]): Entities to delete
-            session (Session): Database session to use
         """
         for to_delete in entities:
-            session.delete(to_delete)
-        session.commit()
+            self._delete(to_delete)
 
-    @classmethod
-    def delete_batch_by_ids(cls, entity_ids: List[int], session: Session):
-        """ Delete an entity by entity_id
+    def delete_batch_by_ids(self, entity_ids: List[int]):
+        """Delete an entity by entity_id
 
         Args:
             entity_ids (List[int]): IDs of the entities
-            session (Session): Database session to use
         """
-        entities_to_delete = cls.get_batch(entity_ids=entity_ids, session=session)
-        cls.delete_batch(entities=entities_to_delete, session=session)
-
-    @classmethod
-    @lru_cache(maxsize=1)
-    def _entity_class(cls) -> Type[GenericEntity]:
-        """ Retrieves the actual entity class at runtime """
-        generic_alias = getattr(cls, "__orig_bases__")[0]
-        entity_class = get_args(generic_alias)[0]
-
-        if not issubclass(entity_class, SQLModelEntity):
-            raise TypeError(f"Entity class {entity_class} for {cls.__name__} must be a subclass of {SQLModelEntity}")
-
-        return entity_class
+        entities_to_delete = self.get_batch(entity_ids=entity_ids)
+        self.delete_batch(entities=entities_to_delete)
