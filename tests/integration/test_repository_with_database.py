@@ -1,10 +1,11 @@
 from typing import Generator
+
 import pytest
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
-from tests.conftest import RepositoryTest
 
-from tests.integration.scenario.entities import Pet, Shelter, PetType
+from tests.conftest import RepositoryTest
+from tests.integration.scenario.entities import Pet, PetType, Shelter
 from tests.integration.scenario.repositories import PetRepository, ShelterRepository
 
 
@@ -17,27 +18,27 @@ class TestSQLModelRepositoryWithDatabase(RepositoryTest):
     @pytest.fixture
     def dog(self, shelter_alpha: Shelter) -> Pet:
         _dog = PetRepository().create(Pet(name="Fido", age=3, type=PetType.DOG, shelter_id=shelter_alpha.id))
-        return _dog  # TODO: Expression of type "SQLModelEntity" cannot be assigned to return type "Pet". Seems like the type hint is not correct
+        return _dog
 
     @pytest.fixture
     def cat(self, shelter_alpha: Shelter) -> Pet:
         _cat = PetRepository().create(Pet(name="Felix", age=2, type=PetType.CAT, shelter_id=shelter_alpha.id))
-        return _cat  # TODO: Expression of type "SQLModelEntity" cannot be assigned to return type "Pet". Seems like the type hint is not correct
+        return _cat
 
     @pytest.fixture
     def fish(self, shelter_alpha: Shelter) -> Pet:
         _fish = PetRepository().create(Pet(name="Nemo", age=1, type=PetType.FISH, shelter_id=shelter_alpha.id))
-        return _fish  # TODO: Expression of type "SQLModelEntity" cannot be assigned to return type "Pet". Seems like the type hint is not correct
+        return _fish
 
     @pytest.fixture
     def shelter_alpha(self) -> Shelter:
         _shelter = ShelterRepository().create(entity=Shelter(name="Shelter Alpha"))
-        return _shelter  # TODO: Expression of type "SQLModelEntity" cannot be assigned to return type "Shelter". Seems like the type hint is not correct
+        return _shelter
 
     @pytest.fixture
     def shelter_beta(self) -> Shelter:
         _shelter = ShelterRepository().create(entity=Shelter(name="Shelter Alpha"))
-        return _shelter  # TODO: Expression of type "SQLModelEntity" cannot be assigned to return type "Shelter". Seems like the type hint is not correct
+        return _shelter
 
     #
     # Tests
@@ -56,7 +57,7 @@ class TestSQLModelRepositoryWithDatabase(RepositoryTest):
         cat = PetRepository().create(Pet(name="Fido", age=3, type=PetType.CAT, shelter_id=shelter_alpha.id))
 
         assert PetRepository().get(entity_id=cat.id) == cat
-        assert cat.shelter == shelter_alpha  # TODO: Cannot access member "shelter" for type "SQLModelEntity". Seems like the type hint is not correct
+        assert cat.shelter == shelter_alpha
 
         PetRepository().delete(entity=cat)
 

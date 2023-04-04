@@ -1,8 +1,7 @@
 from abc import ABC
 from contextlib import contextmanager
-
 from functools import lru_cache
-from typing import Generator, TypeVar, Generic, Type, get_args, List
+from typing import Generator, Generic, List, Type, TypeVar, get_args
 
 from sqlalchemy.orm import Session
 from sqlmodel import col
@@ -10,7 +9,7 @@ from sqlmodel import col
 from python_repository.entity import SQLModelEntity
 from python_repository.exceptions import CouldNotCreateEntityException, CouldNotDeleteEntityException, EntityNotFoundException
 
-GenericEntity = TypeVar("GenericEntity", SQLModelEntity, SQLModelEntity)  # must be multiple constraints
+GenericEntity = TypeVar("GenericEntity", bound=SQLModelEntity)
 
 
 class BaseRepository(Generic[GenericEntity], ABC):
@@ -132,10 +131,10 @@ class BaseRepository(Generic[GenericEntity], ABC):
         if not issubclass(entity_class, SQLModelEntity):
             raise TypeError(f"Entity class {entity_class} for {cls.__name__} must be a subclass of {SQLModelEntity}")
 
-        return entity_class  # TODO: Expression of type "Type[SQLModelEntity]" cannot be assigned to return type "Type[GenericEntity@BaseRepository]"
+        return entity_class  # type: ignore
 
 
-class Repository(Generic[GenericEntity], BaseRepository[GenericEntity], ABC):
+class Repository(BaseRepository[GenericEntity], ABC):
     """Abstract base class for repository implementations"""
 
     def create(self, entity: GenericEntity) -> GenericEntity:
