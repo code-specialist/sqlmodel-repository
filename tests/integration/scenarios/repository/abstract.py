@@ -15,4 +15,4 @@ class AbstractRepository(Repository[ExampleEntity]):
 
     def get_session(self) -> Session:
         """Provides a session to work with"""
-        return next(session_manager.get_session())
+        return session_manager.get_session()
