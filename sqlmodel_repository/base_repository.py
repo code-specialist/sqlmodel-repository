@@ -3,7 +3,7 @@ from contextlib import contextmanager
 from functools import lru_cache
 from typing import Callable, Generator, Generic, Type, TypeVar, get_args
 
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session
 
 from sqlmodel_repository.entity import SQLModelEntity
 from sqlmodel_repository.exceptions import CouldNotCreateEntityException, CouldNotDeleteEntityException, EntityNotFoundException
