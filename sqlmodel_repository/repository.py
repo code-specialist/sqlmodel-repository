@@ -1,6 +1,5 @@
 from abc import ABC
-from typing import Callable, Generator, List, TypeVar
-from sqlalchemy.orm import Session
+from typing import List, TypeVar
 
 
 from sqlmodel import col
