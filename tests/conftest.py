@@ -1,6 +1,6 @@
 from database_setup_tools.setup import DatabaseSetup
 import pytest
-from sqlmodel_repository.config import sqlmodel_repository_config
+from tests.config import POSTGRESQL_DATABASE_URI
 from tests.integration.scenarios.entities import model_metadata
 
 
@@ -12,7 +12,7 @@ def patch_database_target(monkeypatch):
 # pylint: disable=unused-argument
 def pytest_sessionstart(session):
     """Create or reset the databases before the tests"""
-    database_setup = DatabaseSetup(model_metadata=model_metadata, database_uri=sqlmodel_repository_config.DATABASE_URL)
+    database_setup = DatabaseSetup(model_metadata=model_metadata, database_uri=POSTGRESQL_DATABASE_URI)
     database_setup.drop_database()
     database_setup.create_database()
 
@@ -21,7 +21,7 @@ def pytest_sessionstart(session):
 def before_each_test():
     """Reset the database before each test"""
     # TODO: Truncating crashes the session somehow. Lets investigate this
-    database_setup = DatabaseSetup(model_metadata=model_metadata, database_uri=sqlmodel_repository_config.DATABASE_URL)
+    database_setup = DatabaseSetup(model_metadata=model_metadata, database_uri=POSTGRESQL_DATABASE_URI)
     database_setup.drop_database()
     database_setup.create_database()
     # TODO: Sometimes:

@@ -14,9 +14,6 @@ GenericEntity = TypeVar("GenericEntity", bound=SQLModelEntity)
 class Repository(BaseRepository[GenericEntity], ABC):
     """Abstract base class for repository implementations"""
 
-    def __init__(self, get_session: Callable[..., Generator[Session, None, None]]):
-        super().__init__(get_session=get_session)
-
     def create(self, entity: GenericEntity) -> GenericEntity:
         """Creates an entity to the repository
 
