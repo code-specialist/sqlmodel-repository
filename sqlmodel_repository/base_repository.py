@@ -1,5 +1,5 @@
-from abc import ABC
-from contextlib import contextmanager
+from abc import ABC, abstractmethod
+
 from functools import lru_cache
 from typing import Callable, Generator, Generic, Type, TypeVar, get_args
 
@@ -16,23 +16,13 @@ class BaseRepository(Generic[GenericEntity], ABC):
 
     entity: Type[GenericEntity]
 
-    def __init__(self, get_session: Callable[..., Generator[Session, None, None]]):
-        self.get_session = get_session
+    def __init__(self):
         self.entity = self._entity_class()
 
-    @contextmanager
-    def session(self) -> Generator[Session, None, None]:
-        """Context manager that provides a session to the caller
-
-        Returns:
-            Generator[Session, None, None]: A session object
-        """
-        session = next(self.get_session())
-        try:
-            yield session
-        except:
-            session.rollback()
-            raise
+    @abstractmethod
+    def get_session(self) -> Session:
+        """Provides a session to work with"""
+        raise NotImplementedError
 
     def _update(self, entity: GenericEntity, **kwargs) -> GenericEntity:
         """Updates an entity with the given attributes (keyword arguments) if they are not None
@@ -50,35 +40,16 @@ class BaseRepository(Generic[GenericEntity], ABC):
         Notes:
             This method must use the same context to fetch and update the entity. Otherwise its detached and may not be updated.
         """
+        session = self.get_session()
+        entity = self._get(entity_id=entity.id)
 
-        with self.session() as session:
-            entity = self._get_with_session_context(session=session, entity_id=entity.id)
-
-            for key, value in kwargs.items():
-                if value is not None:
-                    setattr(entity, key, value)
-            session.commit()
-            session.refresh(entity)
+        for key, value in kwargs.items():
+            if value is not None:
+                setattr(entity, key, value)
+        session.commit()
+        session.refresh(entity)
 
         return entity
-
-    def _get_with_session_context(self, session: Session, entity_id: int) -> GenericEntity:
-        """Retrieves an entity from the database with the specified ID.
-
-        Args:
-            session (Session): The session to use to retrieve the entity.
-            entity_id (int): The ID of the entity to retrieve.
-
-        Returns:
-            GenericEntity: A GenericEntity object with the specified ID.
-
-        Raises:
-            EntityNotFoundException: If no entity with the specified ID is found in the database.
-        """
-        result = session.query(self.entity).filter(self.entity.id == entity_id).one_or_none()
-        if result is None:
-            raise EntityNotFoundException(f"Entity {GenericEntity.__name__} with ID {entity_id} not found")
-        return result
 
     def _get(self, entity_id: int) -> GenericEntity:
         """Retrieves an entity from the database with the specified ID.
@@ -92,8 +63,10 @@ class BaseRepository(Generic[GenericEntity], ABC):
         Raises:
             EntityNotFoundException: If the entity was not found in the database
         """
-        with self.session() as session:
-            result = self._get_with_session_context(session=session, entity_id=entity_id)
+        session = self.get_session()
+        result = session.query(self.entity).filter(self.entity.id == entity_id).one_or_none()
+        if result is None:
+            raise EntityNotFoundException(f"Entity {GenericEntity.__name__} with ID {entity_id} not found")
         return result
 
     # pylint: disable=dangerous-default-value
@@ -106,8 +79,8 @@ class BaseRepository(Generic[GenericEntity], ABC):
         Returns:
             list[GenericEntity]: A list of GenericEntity objects that match the specified filters.
         """
-        with self.session() as session:
-            result = session.query(self.entity).filter(*filters).all()
+        session = self.get_session()
+        result = session.query(self.entity).filter(*filters).all()
         return result
 
     def _create(self, entity: GenericEntity) -> GenericEntity:
@@ -122,14 +95,15 @@ class BaseRepository(Generic[GenericEntity], ABC):
         Raises:
             CouldNotCreateEntityException: If there was an error inserting the entity into the database.
         """
-        with self.session() as session:
-            try:
-                session.add(entity)
-                session.commit()
-                session.refresh(entity)
-                return entity
-            except Exception as exception:
-                raise CouldNotCreateEntityException from exception
+        session = self.get_session()
+
+        try:
+            session.add(entity)
+            session.commit()
+            session.refresh(entity)
+            return entity
+        except Exception as exception:
+            raise CouldNotCreateEntityException from exception
 
     def _delete(self, entity: GenericEntity) -> GenericEntity:
         """Deletes an entity from the database.
@@ -143,13 +117,13 @@ class BaseRepository(Generic[GenericEntity], ABC):
         Raises:
             DatabaseError: If there was an error deleting the entity from the database.
         """
-        with self.session() as session:
-            try:
-                session.delete(entity)
-                session.commit()
-                return entity
-            except Exception as exception:
-                raise CouldNotDeleteEntityException from exception
+        session = self.get_session()
+        try:
+            session.delete(entity)
+            session.commit()
+            return entity
+        except Exception as exception:
+            raise CouldNotDeleteEntityException from exception
 
     @classmethod
     @lru_cache(maxsize=1)

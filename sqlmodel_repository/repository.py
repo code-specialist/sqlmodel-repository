@@ -1,7 +1,8 @@
 from abc import ABC
 from typing import Callable, Generator, List, TypeVar
-
 from sqlalchemy.orm import Session
+
+
 from sqlmodel import col
 from sqlmodel_repository.base_repository import BaseRepository
 
