@@ -53,8 +53,8 @@ class Repository(BaseRepository[GenericEntity], ABC):
         Returns:
             List[GenericEntity]: The entities that were found in the repository for the given IDs
         """
-        filter_ = [col(self._entity_class().id).in_(entity_ids)]
-        return self._get_all(filters=filter_)
+        filters = [col(self._entity_class().id).in_(entity_ids)]
+        return self._get_all(filters=filters)
 
     def get_all(self) -> List[GenericEntity]:
         """Get all entities of the repository

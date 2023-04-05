@@ -1,5 +1,6 @@
 import pytest
-from sqlmodel_repository.exceptions import EntityNotFoundException
+from sqlalchemy.orm.exc import DetachedInstanceError
+from sqlmodel_repository.exceptions import CouldNotDeleteEntityException, EntityNotFoundException
 from tests.integration.scenarios.base_repository.pet import PetBaseRepository
 from tests.integration.scenarios.base_repository.shelter import ShelterBaseRepository
 from tests.integration.scenarios.base_repository.abstract import session_manager
@@ -58,64 +59,100 @@ class TestBaseRepositoryWithDatabase:
     # Tests
     #
 
-    def test_update(self, pet_base_repository: PetBaseRepository, dog: Pet):
-        """Test to update an entity"""
-        new_name = "Fido II"
-        pet_base_repository._update(entity=dog, name=new_name)
-        updated_dog = pet_base_repository._get(entity_id=dog.id)
+    class TestUpdate:
+        """Tests for the _update method"""
 
-        assert updated_dog.name == new_name
-        assert updated_dog.age == dog.age
-        assert updated_dog.type == dog.type
-        assert updated_dog.shelter_id == dog.shelter_id
+        @staticmethod
+        def test(pet_base_repository: PetBaseRepository, dog: Pet):
+            """Test to update an entity"""
+            new_name = "Fido II"
+            pet_base_repository._update(entity=dog, name=new_name)
+            updated_dog = pet_base_repository._get(entity_id=dog.id)
 
-    def test_get_with_session_context(self, dog: Pet, pet_base_repository: PetBaseRepository):
-        """Test to get an entity with a session context"""
-        session = next(session_manager.get_session())
-        _dog = pet_base_repository._get_with_session_context(entity_id=dog.id, session=session)
+            assert updated_dog.name == new_name
+            assert updated_dog.age == dog.age
+            assert updated_dog.type == dog.type
+            assert updated_dog.shelter_id == dog.shelter_id
 
-        assert _dog.id == dog.id
-        assert _dog.name == dog.name
-        assert _dog.age == dog.age
-        assert _dog.type == dog.type
-        assert _dog.shelter_id == dog.shelter_id
+        @staticmethod
+        def test_raise_entity_not_found(pet_base_repository: PetBaseRepository, dog: Pet):
+            """Test to update an entity fails if the entity does not exist"""
+            pet_base_repository._delete(entity=dog)
 
-    def test_get_with_session_context_does_not_exist(self, pet_base_repository: PetBaseRepository):
-        """Test to get an entity with a session context"""
-        session = next(session_manager.get_session())
+            with pytest.raises(EntityNotFoundException):
+                pet_base_repository._update(entity=dog, name="new_name")  # type: ignore
 
-        with pytest.raises(EntityNotFoundException) as exception:
-            pet_base_repository._get_with_session_context(entity_id=1, session=session)
-            assert exception._excinfo == "Entity with id 1 not found"
+    class TestGet:
+        """Tests for the _get method"""
 
-    def test_get(self, dog: Pet, pet_base_repository: PetBaseRepository):
-        """Test to get an entity"""
-        _dog = pet_base_repository._get(entity_id=dog.id)
+        @staticmethod
+        def test(dog: Pet, pet_base_repository: PetBaseRepository):
+            """Test to get an entity"""
+            _dog = pet_base_repository._get(entity_id=dog.id)
 
-        assert _dog.id == dog.id
-        assert _dog.name == dog.name
-        assert _dog.age == dog.age
-        assert _dog.type == dog.type
-        assert _dog.shelter_id == dog.shelter_id
+            assert _dog.id == dog.id
+            assert _dog.name == dog.name
+            assert _dog.age == dog.age
+            assert _dog.type == dog.type
+            assert _dog.shelter_id == dog.shelter_id
 
-    def test_get_all(self, dog: Pet, cat: Pet, fish: Pet, pet_base_repository: PetBaseRepository):
-        """Test to get all entities"""
-        pets = pet_base_repository._get_all()
+    class TestGetWithSessionContext:
+        """Tests for the _get_with_session_context method"""
 
-        assert len(pets) == 3
-        assert dog in pets
-        assert cat in pets
-        assert fish in pets
+        @staticmethod
+        def test_with_session_context(dog: Pet, pet_base_repository: PetBaseRepository):
+            """Test to get an entity with a session context"""
+            session = next(session_manager.get_session())
+            _dog = pet_base_repository._get_with_session_context(entity_id=dog.id, session=session)
 
-    def test_get_all_empty(self, pet_base_repository: PetBaseRepository):
-        """Test to get all entities"""
-        pets = pet_base_repository._get_all()
+            assert _dog.id == dog.id
+            assert _dog.name == dog.name
+            assert _dog.age == dog.age
+            assert _dog.type == dog.type
+            assert _dog.shelter_id == dog.shelter_id
 
-        assert pets == []
+        @staticmethod
+        def test_raise_entity_not_found(pet_base_repository: PetBaseRepository):
+            """Test to get an entity with a session context"""
+            session = next(session_manager.get_session())
 
-    def test_delete(self, pet_base_repository: PetBaseRepository, dog: Pet):
-        """Test to delete an entity"""
-        pet_base_repository._delete(entity=dog)
-        pets = pet_base_repository._get_all()
+            with pytest.raises(EntityNotFoundException) as exception:
+                pet_base_repository._get_with_session_context(entity_id=1, session=session)
+                assert exception._excinfo == "Entity with id 1 not found"
 
-        assert pets == []
+    class TestGetAll:
+        """Tests for the _get_all method"""
+
+        @staticmethod
+        def test(dog: Pet, cat: Pet, fish: Pet, pet_base_repository: PetBaseRepository):
+            """Test to get all entities"""
+            pets = pet_base_repository._get_all()
+
+            assert len(pets) == 3
+            assert dog in pets
+            assert cat in pets
+            assert fish in pets
+
+        @staticmethod
+        def test_empty(pet_base_repository: PetBaseRepository):
+            """Test to get all entities"""
+            pets = pet_base_repository._get_all()
+
+            assert pets == []
+
+    class TestDelete:
+        """Tests for the _delete method"""
+
+        @staticmethod
+        def test(pet_base_repository: PetBaseRepository, dog: Pet):
+            """Test to delete an entity"""
+            pet_base_repository._delete(entity=dog)
+            pets = pet_base_repository._get_all()
+
+            assert pets == []
+
+        @staticmethod
+        def test_raise_could_not_delete_entity(pet_base_repository: PetBaseRepository, dog: Pet):
+            """Test to delete an entity"""
+            with pytest.raises(CouldNotDeleteEntityException):
+                pet_base_repository._delete(entity="dog")  # type: ignore

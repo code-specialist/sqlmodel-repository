@@ -3,7 +3,7 @@ from contextlib import contextmanager
 from functools import lru_cache
 from typing import Callable, Generator, Generic, Type, TypeVar, get_args
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from sqlmodel_repository.entity import SQLModelEntity
 from sqlmodel_repository.exceptions import CouldNotCreateEntityException, CouldNotDeleteEntityException, EntityNotFoundException
@@ -22,7 +22,11 @@ class BaseRepository(Generic[GenericEntity], ABC):
 
     @contextmanager
     def session(self) -> Generator[Session, None, None]:
-        """Context manager that provides a session to the caller"""
+        """Context manager that provides a session to the caller
+
+        Returns:
+            Generator[Session, None, None]: A session object
+        """
         session = next(self.get_session())
         try:
             yield session
@@ -38,7 +42,7 @@ class BaseRepository(Generic[GenericEntity], ABC):
             **kwargs: The attributes to update with their new values
 
         Returns:
-            Entity: The updated entity
+            GenericEntity: The updated entity
 
         Raises:
             EntityNotFoundException: If the entity was not found in the database
@@ -62,8 +66,8 @@ class BaseRepository(Generic[GenericEntity], ABC):
         """Retrieves an entity from the database with the specified ID.
 
         Args:
-            session: The session to use to retrieve the entity.
-            entity_id: The ID of the entity to retrieve.
+            session (Session): The session to use to retrieve the entity.
+            entity_id (int): The ID of the entity to retrieve.
 
         Returns:
             GenericEntity: A GenericEntity object with the specified ID.
@@ -80,10 +84,10 @@ class BaseRepository(Generic[GenericEntity], ABC):
         """Retrieves an entity from the database with the specified ID.
 
         Args:
-            entity_id: The ID of the entity to retrieve.
+            entity_id (int): The ID of the entity to retrieve.
 
         Returns:
-            A GenericEntity object with the specified ID.
+            GenericEntity: Object with the specified ID.
 
         Raises:
             EntityNotFoundException: If the entity was not found in the database
@@ -97,22 +101,23 @@ class BaseRepository(Generic[GenericEntity], ABC):
         """Retrieves a list of entities from the database that match the specified filters.
 
         Args:
-            filters: An optional list of attribute-value pairs used to filter the query. Default is an empty list.
+            filters (list): An optional list of attribute-value pairs used to filter the query. Default is an empty list.
 
         Returns:
-            A list of GenericEntity objects that match the specified filters.
+            list[GenericEntity]: A list of GenericEntity objects that match the specified filters.
         """
         with self.session() as session:
-            return session.query(self.entity).filter(*filters).all()
+            result = session.query(self.entity).filter(*filters).all()
+        return result
 
     def _create(self, entity: GenericEntity) -> GenericEntity:
         """Adds a new entity to the database.
 
         Args:
-            entity: A GenericEntity object to add to the database.
+            entity (GenericEntity): A GenericEntity object to add to the database.
 
         Returns:
-            The GenericEntity object that was added to the database, with any auto-generated fields populated.
+             GenericEntity: The object that was added to the database, with any auto-generated fields populated.
 
         Raises:
             CouldNotCreateEntityException: If there was an error inserting the entity into the database.
@@ -130,10 +135,10 @@ class BaseRepository(Generic[GenericEntity], ABC):
         """Deletes an entity from the database.
 
         Args:
-            entity: A GenericEntity object to delete from the database.
+            entity (GenericEntity): A GenericEntity object to delete from the database.
 
         Returns:
-            The GenericEntity object that was deleted from the database.
+            GenericEntity: The object that was deleted from the database.
 
         Raises:
             DatabaseError: If there was an error deleting the entity from the database.
@@ -149,7 +154,11 @@ class BaseRepository(Generic[GenericEntity], ABC):
     @classmethod
     @lru_cache(maxsize=1)
     def _entity_class(cls) -> Type[GenericEntity]:
-        """Retrieves the actual entity class at runtime. This function may or may not be victim of future Python changes."""
+        """Retrieves the actual entity class at runtime. This function may or may not be victim of future Python changes.
+
+        Returns:
+            Type[GenericEntity]: The managed entity class for the repository
+        """
         generic_alias = getattr(cls, "__orig_bases__")[0]
         entity_class = get_args(generic_alias)[0]
 

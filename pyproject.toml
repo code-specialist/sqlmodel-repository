@@ -23,7 +23,7 @@ pytest = "^7.2.0"
 pytest-cov = "^4.0.0"
 
 [tool.pytest.ini_options]
-addopts = "-x -p no:warnings --cov-report=term-missing --cov-report=term --no-cov-on-fail --cov=sqlmodel_repository"
+addopts = "-x -p no:warnings -v --cov-report=term-missing --cov-report=term --no-cov-on-fail --cov=sqlmodel_repository"
 
 [tool.black]
 line-length = 200
