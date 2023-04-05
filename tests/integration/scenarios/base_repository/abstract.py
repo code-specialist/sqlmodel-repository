@@ -1,13 +1,11 @@
 from typing import TypeVar
 
-from database_setup_tools.session_manager import SessionManager
 from sqlalchemy.orm import Session
-from sqlmodel_repository import SQLModelEntity, BaseRepository
-from tests.config import POSTGRESQL_DATABASE_URI
 
+from sqlmodel_repository.context import get_session as contextual_session
+from sqlmodel_repository import SQLModelEntity, BaseRepository
 
 ExampleEntity = TypeVar("ExampleEntity", bound=SQLModelEntity)
-session_manager = SessionManager(database_uri=POSTGRESQL_DATABASE_URI)
 
 
 class AbstractBaseRepository(BaseRepository[ExampleEntity]):
@@ -15,4 +13,4 @@ class AbstractBaseRepository(BaseRepository[ExampleEntity]):
 
     def get_session(self) -> Session:
         """Provides a session to work with"""
-        return session_manager.get_session()
+        return contextual_session()

@@ -1,9 +1,11 @@
 from abc import ABC
 from typing import List, TypeVar
+from sqlalchemy.orm import Session
 
 
 from sqlmodel import col
 from sqlmodel_repository.base_repository import BaseRepository
+from sqlmodel_repository.context import get_session as contextual_session
 
 from sqlmodel_repository.entity import SQLModelEntity
 
@@ -12,6 +14,10 @@ GenericEntity = TypeVar("GenericEntity", bound=SQLModelEntity)
 
 class Repository(BaseRepository[GenericEntity], ABC):
     """Abstract base class for repository implementations"""
+
+    def get_session(self) -> Session:
+        """Provides a session to work with"""
+        return contextual_session()
 
     def create(self, entity: GenericEntity) -> GenericEntity:
         """Creates an entity to the repository
