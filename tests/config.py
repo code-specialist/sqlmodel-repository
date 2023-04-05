@@ -4,5 +4,3 @@ POSTGRESQL_HOST = "localhost"
 POSTGRESQL_PORT = "2345"
 POSTGRESQL_DATABASE = "test"
 POSTGRESQL_DATABASE_URI = f"postgresql://{POSTGRESQL_USER}:{POSTGRESQL_PASSWORD}@{POSTGRESQL_HOST}:{POSTGRESQL_PORT}/{POSTGRESQL_DATABASE}"
-
-SQLITE_DATABASE_URI = "sqlite:///test.db"  # in-memory database does not support multi-session

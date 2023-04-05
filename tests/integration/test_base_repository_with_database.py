@@ -1,9 +1,7 @@
 import pytest
-from sqlalchemy.orm.exc import DetachedInstanceError
 from sqlmodel_repository.exceptions import CouldNotDeleteEntityException, EntityNotFoundException
 from tests.integration.scenarios.base_repository.pet import PetBaseRepository
 from tests.integration.scenarios.base_repository.shelter import ShelterBaseRepository
-from tests.integration.scenarios.base_repository.abstract import session_manager
 from tests.integration.scenarios.entities import Pet, PetType, Shelter
 
 
@@ -96,30 +94,6 @@ class TestBaseRepositoryWithDatabase:
             assert _dog.type == dog.type
             assert _dog.shelter_id == dog.shelter_id
 
-    class TestGetWithSessionContext:
-        """Tests for the _get_with_session_context method"""
-
-        @staticmethod
-        def test_with_session_context(dog: Pet, pet_base_repository: PetBaseRepository):
-            """Test to get an entity with a session context"""
-            session = next(session_manager.get_session())
-            _dog = pet_base_repository._get_with_session_context(entity_id=dog.id, session=session)
-
-            assert _dog.id == dog.id
-            assert _dog.name == dog.name
-            assert _dog.age == dog.age
-            assert _dog.type == dog.type
-            assert _dog.shelter_id == dog.shelter_id
-
-        @staticmethod
-        def test_raise_entity_not_found(pet_base_repository: PetBaseRepository):
-            """Test to get an entity with a session context"""
-            session = next(session_manager.get_session())
-
-            with pytest.raises(EntityNotFoundException) as exception:
-                pet_base_repository._get_with_session_context(entity_id=1, session=session)
-                assert exception._excinfo == "Entity with id 1 not found"
-
     class TestGetAll:
         """Tests for the _get_all method"""
 
@@ -152,7 +126,7 @@ class TestBaseRepositoryWithDatabase:
             assert pets == []
 
         @staticmethod
-        def test_raise_could_not_delete_entity(pet_base_repository: PetBaseRepository, dog: Pet):
+        def test_raise_could_not_delete_entity(pet_base_repository: PetBaseRepository, dog: Pet):  # pylint: disable=unused-argument
             """Test to delete an entity"""
             with pytest.raises(CouldNotDeleteEntityException):
                 pet_base_repository._delete(entity="dog")  # type: ignore

@@ -9,5 +9,5 @@
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter"
     },
-    "dotenv.enableAutocloaking": true
+    "dotenv.enableAutocloaking": false
 }
