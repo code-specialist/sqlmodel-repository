@@ -1,4 +1,7 @@
+from typing import Generator
+from database_setup_tools.session_manager import SessionManager
 import pytest
+from sqlalchemy.orm import Session
 from sqlmodel_repository.exceptions import CouldNotDeleteEntityException, EntityNotFoundException
 from tests.integration.scenarios.base_repository.pet import PetBaseRepository
 from tests.integration.scenarios.base_repository.shelter import ShelterBaseRepository
@@ -12,6 +15,12 @@ class TestBaseRepositoryWithDatabase:
     #
     # Fixtures
     #
+
+    @pytest.fixture
+    def session(self, session_manager: SessionManager) -> Generator[Session, None, None]:
+        session = next(session_manager.get_session())
+        yield session
+        session.close()
 
     @pytest.fixture
     def dog(self, pet_base_repository: PetBaseRepository, shelter_alpha: Shelter) -> Pet:
@@ -44,14 +53,14 @@ class TestBaseRepositoryWithDatabase:
         return _shelter
 
     @pytest.fixture
-    def shelter_base_repository(self) -> ShelterBaseRepository:
+    def shelter_base_repository(self, session: Session) -> ShelterBaseRepository:
         """Fixture to create a shelter repository. Fake Dependency Injection."""
-        return ShelterBaseRepository()
+        return ShelterBaseRepository(session)
 
     @pytest.fixture
-    def pet_base_repository(self) -> PetBaseRepository:
+    def pet_base_repository(self, session: Session) -> PetBaseRepository:
         """Fixture to create a pet repository. Fake Dependency Injection."""
-        return PetBaseRepository()
+        return PetBaseRepository(session)
 
     #
     # Tests
@@ -93,6 +102,19 @@ class TestBaseRepositoryWithDatabase:
             assert _dog.age == dog.age
             assert _dog.type == dog.type
             assert _dog.shelter_id == dog.shelter_id
+
+        @staticmethod
+        def test_relationship_attribute(dog: Pet, pet_base_repository: PetBaseRepository):
+            """Test to get an entity"""
+            _dog = pet_base_repository._get(entity_id=dog.id)
+
+            assert _dog.id == dog.id
+            assert _dog.name == dog.name
+            assert _dog.age == dog.age
+            assert _dog.type == dog.type
+            assert _dog.shelter_id == dog.shelter_id
+
+            assert _dog.shelter == dog.shelter  # Fails due to "DetachedInstanceError: Parent instance <Pet at 0x10826a840> is not bound to a Session" (dog instance)
 
     class TestGetAll:
         """Tests for the _get_all method"""
