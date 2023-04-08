@@ -1,5 +1,7 @@
+from typing import Generator
+from database_setup_tools.session_manager import SessionManager
 import pytest
-from sqlalchemy.orm.exc import DetachedInstanceError
+from sqlalchemy.orm import Session
 from sqlmodel_repository.exceptions import CouldNotCreateEntityException, CouldNotDeleteEntityException, EntityNotFoundException
 
 from tests.integration.scenarios.entities import Pet, PetType, Shelter
@@ -13,6 +15,12 @@ class TestRepositoryWithDatabase:
     #
     # Fixtures
     #
+
+    @pytest.fixture
+    def session(self, session_manager: SessionManager) -> Generator[Session, None, None]:
+        session = next(session_manager.get_session())
+        yield session
+        session.close()
 
     @pytest.fixture
     def dog(self, pet_repository: PetRepository, shelter_alpha: Shelter) -> Pet:
@@ -45,19 +53,18 @@ class TestRepositoryWithDatabase:
         return _shelter
 
     @pytest.fixture
-    def shelter_repository(self) -> ShelterRepository:
+    def shelter_repository(self, session: Session) -> ShelterRepository:
         """Fixture to create a shelter repository. Fake Dependency Injection."""
-        return ShelterRepository()
+        return ShelterRepository(session)
 
     @pytest.fixture
-    def pet_repository(self) -> PetRepository:
+    def pet_repository(self, session: Session) -> PetRepository:
         """Fixture to create a pet repository. Fake Dependency Injection."""
-        return PetRepository()
+        return PetRepository(session)
 
     #
     # Tests
     #
-
     class TestGet:
         """Tests for the get method."""
 

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from functools import lru_cache
-from typing import Callable, Generator, Generic, Type, TypeVar, get_args
+from typing import Generic, Type, TypeVar, get_args
 
 from sqlalchemy.orm import Session
 
@@ -103,6 +103,7 @@ class BaseRepository(Generic[GenericEntity], ABC):
             session.refresh(entity)
             return entity
         except Exception as exception:
+            session.rollback()
             raise CouldNotCreateEntityException from exception
 
     def _delete(self, entity: GenericEntity) -> GenericEntity:
@@ -123,6 +124,7 @@ class BaseRepository(Generic[GenericEntity], ABC):
             session.commit()
             return entity
         except Exception as exception:
+            session.rollback()
             raise CouldNotDeleteEntityException from exception
 
     @classmethod
