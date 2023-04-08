@@ -1,19 +1,36 @@
 from database_setup_tools.setup import DatabaseSetup
-
+import pytest
 from tests.config import POSTGRESQL_DATABASE_URI
-from tests.integration.scenario.entities import model_metadata
+from tests.integration.scenarios.entities import Pet, Shelter, model_metadata
 
 
-class RepositoryTest:
-    pass
+def patch_database_target(monkeypatch):
+    """Patch the database target to use a test database"""
+    monkeypatch.setenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/test")
+
+
+@pytest.fixture(scope="session")
+def database_setup() -> DatabaseSetup:
+    """Fixture to create a database setup"""
+    return DatabaseSetup(model_metadata=model_metadata, database_uri=POSTGRESQL_DATABASE_URI)
+
+
+@pytest.fixture(scope="session")
+def session_manager(database_setup: DatabaseSetup):
+    """Fixture to create a session manager"""
+    return database_setup.session_manager
 
 
 # pylint: disable=unused-argument
-# noinspection PyUnusedLocal
 def pytest_sessionstart(session):
     """Create or reset the databases before the tests"""
-    setup = DatabaseSetup(
-        model_metadata=model_metadata, database_uri=POSTGRESQL_DATABASE_URI
-    )  # TODO: This is fucked up. The DB Setup fails once the db exists because it creates it by default.
-    setup.drop_database()
-    setup.create_database()
+    database_setup = DatabaseSetup(model_metadata=model_metadata, database_uri=POSTGRESQL_DATABASE_URI)
+    database_setup.drop_database()
+    database_setup.create_database()
+
+
+@pytest.fixture(scope="function", autouse=True)
+def before_each_test():
+    """Reset the database before each test"""
+    database_setup = DatabaseSetup(model_metadata=model_metadata, database_uri=POSTGRESQL_DATABASE_URI)
+    database_setup.truncate(tables=[Pet, Shelter])  # type: ignore

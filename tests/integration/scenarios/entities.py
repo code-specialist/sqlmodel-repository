@@ -2,7 +2,7 @@ from enum import Enum
 
 from sqlmodel import Relationship, Field
 
-from python_repository import SQLModelEntity
+from sqlmodel_repository import SQLModelEntity
 
 
 class PetType(Enum):
@@ -17,7 +17,7 @@ class Pet(SQLModelEntity, table=True):
     """Pet model"""
 
     id: int = Field(index=True, default=None, primary_key=True)
-    
+
     name: str
     age: int
     type: PetType
@@ -29,9 +29,9 @@ class Shelter(SQLModelEntity, table=True):
     """Shelter model"""
 
     id: int = Field(index=True, default=None, primary_key=True)
-    
+
     name: str
-    pets: list[Pet] = Relationship(back_populates="shelter")
+    pets: list[Pet] = Relationship(back_populates="shelter", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
 
 
 model_metadata = SQLModelEntity.metadata
