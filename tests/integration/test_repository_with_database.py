@@ -210,6 +210,12 @@ class TestRepositoryWithDatabase:
                 assert pet.name == "Fidolina"
                 assert pet.age == 12
 
+        @staticmethod
+        def test_raises_x(pet_repository: PetRepository, cat: Pet, dog: Pet, fish: Pet):
+            """Test to update a batch of entities"""
+            with pytest.raises(EntityDoesNotPossessAttributeException):
+                pet_repository.update_batch_by_ids(entity_ids=[cat.id, dog.id, fish.id], rofl="copter")
+
     class TestDelete:
         """Tests for the delete method."""
 

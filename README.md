@@ -90,14 +90,14 @@ Done 🚀 You can now use the repository to perform the operations on your entit
 from sqlmodel import col
 
 # Create a new shelter
-ShelterRepository().create(Shelter(name="Shelter 1"))
+shelter = ShelterRepository().create(Shelter(name="Shelter 1"))
 
 # Create some pets
-PetRepository().create(Pet(name="Fido", age=3, type=PetType.DOG, shelter_id=1))
-PetRepository().create(Pet(name="Fifi", age=2, type=PetType.CAT, shelter_id=1))
+fido = PetRepository().create(Pet(name="Fido", age=3, type=PetType.DOG, shelter_id=1))
+fifi = PetRepository().create(Pet(name="Fifi", age=2, type=PetType.CAT, shelter_id=1))
 
-# Find all pets that belong to a shelter with one of the given ids
-PetRepository().find([col(Pet.shelter.id).in_([1,2,3])])
+# Find all pets that belong to the shelter
+PetRepository().find(shelter=shelter)
 ```
 
 No more session passing, no more boilerplate code. Just use the repository to perform the operations on your entities 🎉

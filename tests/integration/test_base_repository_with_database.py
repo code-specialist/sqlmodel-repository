@@ -2,7 +2,7 @@ from typing import Generator
 from database_setup_tools.session_manager import SessionManager
 import pytest
 from sqlalchemy.orm import Session
-from sqlmodel_repository.exceptions import CouldNotCreateEntityException, CouldNotDeleteEntityException, EntityNotFoundException
+from sqlmodel_repository.exceptions import CouldNotCreateEntityException, CouldNotDeleteEntityException, EntityDoesNotPossessAttributeException, EntityNotFoundException
 from tests.integration.scenarios.base_repository.pet import PetBaseRepository
 from tests.integration.scenarios.base_repository.shelter import ShelterBaseRepository
 from tests.integration.scenarios.entities import Pet, PetType, Shelter
@@ -147,6 +147,12 @@ class TestBaseRepositoryWithDatabase:
 
             with pytest.raises(EntityNotFoundException):
                 pet_base_repository._update(entity=dog, name="new_name")  # type: ignore
+
+        @staticmethod
+        def test_raises_entity_does_not_possess_attribute(pet_base_repository: PetBaseRepository, dog: Pet):
+            """Test to update an entity fails if the entity does not possess the attribute"""
+            with pytest.raises(EntityDoesNotPossessAttributeException):
+                pet_base_repository._update(entity=dog, name="new_name", age=10, type=PetType.CAT, shelter_id=1, unknown_attribute="unknown")
 
     class TestUpdateBatch:
         """Tests for the _update_batch method"""

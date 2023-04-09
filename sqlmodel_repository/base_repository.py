@@ -6,7 +6,7 @@ from typing import Generic, Type, TypeVar, get_args
 from sqlalchemy.orm import Session
 
 from sqlmodel_repository.entity import SQLModelEntity
-from sqlmodel_repository.exceptions import CouldNotCreateEntityException, CouldNotDeleteEntityException, EntityNotFoundException
+from sqlmodel_repository.exceptions import CouldNotCreateEntityException, CouldNotDeleteEntityException, EntityDoesNotPossessAttributeException, EntityNotFoundException
 
 GenericEntity = TypeVar("GenericEntity", bound=SQLModelEntity)
 
@@ -45,7 +45,11 @@ class BaseRepository(Generic[GenericEntity], ABC):
 
         for key, value in kwargs.items():
             if value is not None:
-                setattr(entity, key, value)
+                try:
+                    setattr(entity, key, value)
+                except Exception as exception:
+                    raise EntityDoesNotPossessAttributeException(f"Could not set attribute {key} to {value} on entity {entity}") from exception
+
         session.commit()
         session.refresh(entity)
 
@@ -67,7 +71,11 @@ class BaseRepository(Generic[GenericEntity], ABC):
         for entity in entities:
             for key, value in kwargs.items():
                 if value is not None:
-                    setattr(entity, key, value)
+                    try:
+                        setattr(entity, key, value)
+                    except Exception as exception:
+                        raise EntityDoesNotPossessAttributeException(f"Could not set attribute {key} to {value} on entity {entity}") from exception
+
         session.commit()
 
         for entity in entities:
