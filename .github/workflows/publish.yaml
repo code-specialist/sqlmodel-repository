@@ -11,7 +11,7 @@ jobs:
       contents: write
     steps:
       - name: Publish PyPi package
-        uses: code-specialist/pypi-poetry-publish@v1.1
+        uses: code-specialist/pypi-poetry-publish@v1.2
         with:
           PYTHON_VERSION: "3.10"
           PACKAGE_DIRECTORY: './sqlmodel_repository/'
