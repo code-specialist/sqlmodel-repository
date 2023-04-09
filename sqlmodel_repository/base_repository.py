@@ -6,7 +6,7 @@ from typing import Generic, Type, TypeVar, get_args
 from sqlalchemy.orm import Session
 
 from sqlmodel_repository.entity import SQLModelEntity
-from sqlmodel_repository.exceptions import CouldNotCreateEntityException, CouldNotDeleteEntityException, EntityNotFoundException
+from sqlmodel_repository.exceptions import CouldNotCreateEntityException, CouldNotDeleteEntityException, EntityDoesNotPossessAttributeException, EntityNotFoundException
 
 GenericEntity = TypeVar("GenericEntity", bound=SQLModelEntity)
 
@@ -45,11 +45,43 @@ class BaseRepository(Generic[GenericEntity], ABC):
 
         for key, value in kwargs.items():
             if value is not None:
-                setattr(entity, key, value)
+                try:
+                    setattr(entity, key, value)
+                except Exception as exception:
+                    raise EntityDoesNotPossessAttributeException(f"Could not set attribute {key} to {value} on entity {entity}") from exception
+
         session.commit()
         session.refresh(entity)
 
         return entity
+
+    def _update_batch(self, entities: list[GenericEntity], **kwargs) -> list[GenericEntity]:
+        """Updates a list of entities with the given attributes (keyword arguments) if they are not None
+
+        Args:
+            entities (list[GenericEntity]): The entities to update
+            **kwargs: The attributes to update with their new values
+
+        Returns:
+            list[GenericEntity]: The updated entities
+        """
+
+        session = self.get_session()
+
+        for entity in entities:
+            for key, value in kwargs.items():
+                if value is not None:
+                    try:
+                        setattr(entity, key, value)
+                    except Exception as exception:
+                        raise EntityDoesNotPossessAttributeException(f"Could not set attribute {key} to {value} on entity {entity}") from exception
+
+        session.commit()
+
+        for entity in entities:
+            session.refresh(entity)
+
+        return entities
 
     def _get(self, entity_id: int) -> GenericEntity:
         """Retrieves an entity from the database with the specified ID.
@@ -70,7 +102,7 @@ class BaseRepository(Generic[GenericEntity], ABC):
         return result
 
     # pylint: disable=dangerous-default-value
-    def _get_all(self, filters: list = []) -> list[GenericEntity]:
+    def _get_batch(self, filters: list = []) -> list[GenericEntity]:
         """Retrieves a list of entities from the database that match the specified filters.
 
         Args:
@@ -106,6 +138,29 @@ class BaseRepository(Generic[GenericEntity], ABC):
             session.rollback()
             raise CouldNotCreateEntityException from exception
 
+    def _create_batch(self, entities: list[GenericEntity]) -> list[GenericEntity]:
+        """Adds a batch of new entities to the database.
+
+        Args:
+            entities (list[GenericEntity]): A list of GenericEntity objects to add to the database.
+
+        Returns:
+            list[GenericEntity]: The objects that were added to the database, with any auto-generated fields populated.
+        """
+        session = self.get_session()
+        try:
+            for entity in entities:
+                session.add(entity)
+
+            session.commit()
+        except Exception as exception:
+            session.rollback()
+            raise CouldNotCreateEntityException from exception
+
+        for entity in entities:
+            session.refresh(entity)
+        return entities
+
     def _delete(self, entity: GenericEntity) -> GenericEntity:
         """Deletes an entity from the database.
 
@@ -123,6 +178,26 @@ class BaseRepository(Generic[GenericEntity], ABC):
             session.delete(entity)
             session.commit()
             return entity
+        except Exception as exception:
+            session.rollback()
+            raise CouldNotDeleteEntityException from exception
+
+    def _delete_batch(self, entities: list[GenericEntity]) -> None:
+        """Deletes a batch of entities from the database.
+
+        Args:
+            entities (list[GenericEntity]): A list of GenericEntity objects to delete from the database.
+
+        Raises:
+            CouldNotDeleteEntityException: If there was an error deleting the entities from the database.
+        """
+        session = self.get_session()
+
+        try:
+            for entity in entities:
+                session.delete(entity)
+
+            session.commit()
         except Exception as exception:
             session.rollback()
             raise CouldNotDeleteEntityException from exception

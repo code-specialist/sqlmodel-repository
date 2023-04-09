@@ -2,7 +2,7 @@ from typing import Generator
 from database_setup_tools.session_manager import SessionManager
 import pytest
 from sqlalchemy.orm import Session
-from sqlmodel_repository.exceptions import CouldNotDeleteEntityException, EntityNotFoundException
+from sqlmodel_repository.exceptions import CouldNotCreateEntityException, CouldNotDeleteEntityException, EntityDoesNotPossessAttributeException, EntityNotFoundException
 from tests.integration.scenarios.base_repository.pet import PetBaseRepository
 from tests.integration.scenarios.base_repository.shelter import ShelterBaseRepository
 from tests.integration.scenarios.entities import Pet, PetType, Shelter
@@ -66,6 +66,65 @@ class TestBaseRepositoryWithDatabase:
     # Tests
     #
 
+    class TestCreate:
+        """Tests for the _create method"""
+
+        @staticmethod
+        def test(pet_base_repository: PetBaseRepository, shelter_alpha: Shelter):
+            """Test to create an entity"""
+            entity = Pet(name="Fido", age=3, type=PetType.DOG, shelter_id=shelter_alpha.id)
+            fido = pet_base_repository._create(entity=entity)
+
+            _fido = pet_base_repository._get(entity_id=fido.id)
+
+            assert _fido == fido
+
+        @staticmethod
+        def test_id_is_populated(pet_base_repository: PetBaseRepository, shelter_alpha: Shelter):
+            """Test to create an entity"""
+            entity = Pet(name="Fido", age=3, type=PetType.DOG, shelter_id=shelter_alpha.id)
+            pet_base_repository._create(entity=entity)
+
+            assert entity.id is not None
+
+    class TestCreateBatch:
+        """Tests for the _create_batch method"""
+
+        @staticmethod
+        def test(pet_base_repository: PetBaseRepository, shelter_alpha: Shelter):
+            """Test to create a batch of entities"""
+            pets = [
+                Pet(name="Fido", age=3, type=PetType.DOG, shelter_id=shelter_alpha.id),
+                Pet(name="Felix", age=2, type=PetType.CAT, shelter_id=shelter_alpha.id),
+                Pet(name="Nemo", age=1, type=PetType.FISH, shelter_id=shelter_alpha.id),
+            ]
+            pet_base_repository._create_batch(entities=pets)
+            assert pet_base_repository._get_batch() == pets
+
+        @staticmethod
+        def test_attributes_are_populated(pet_base_repository: PetBaseRepository, shelter_alpha: Shelter):
+            """Test to create a batch of entities"""
+            pets = [
+                Pet(name="Fido", age=3, type=PetType.DOG, shelter_id=shelter_alpha.id),
+                Pet(name="Felix", age=2, type=PetType.CAT, shelter_id=shelter_alpha.id),
+                Pet(name="Nemo", age=1, type=PetType.FISH, shelter_id=shelter_alpha.id),
+            ]
+            pets = pet_base_repository._create_batch(entities=pets)
+
+            for pet in pets:
+                assert pet.id is not None
+
+        @staticmethod
+        def test_raises_could_not_create_entity(pet_base_repository: PetBaseRepository, shelter_alpha: Shelter):
+            """Test to create a batch of entities and raise an exception"""
+            pets = [
+                "Hans der Tepppichwal",
+                Pet(name="Felix", age=2, type=PetType.CAT, shelter_id=shelter_alpha.id),
+                Pet(name="Nemo", age=1, type=PetType.FISH, shelter_id=shelter_alpha.id),
+            ]
+            with pytest.raises(CouldNotCreateEntityException):
+                pet_base_repository._create_batch(entities=pets)
+
     class TestUpdate:
         """Tests for the _update method"""
 
@@ -88,6 +147,38 @@ class TestBaseRepositoryWithDatabase:
 
             with pytest.raises(EntityNotFoundException):
                 pet_base_repository._update(entity=dog, name="new_name")  # type: ignore
+
+        @staticmethod
+        def test_raises_entity_does_not_possess_attribute(pet_base_repository: PetBaseRepository, dog: Pet):
+            """Test to update an entity fails if the entity does not possess the attribute"""
+            with pytest.raises(EntityDoesNotPossessAttributeException):
+                pet_base_repository._update(entity=dog, name="new_name", age=10, type=PetType.CAT, shelter_id=1, unknown_attribute="unknown")
+
+    class TestUpdateBatch:
+        """Tests for the _update_batch method"""
+
+        def test(self, pet_base_repository: PetBaseRepository, dog: Pet, cat: Pet, fish: Pet):
+            """Test to update an entity"""
+            new_name = "Fido II"
+            pet_base_repository._update_batch(entities=[dog, cat, fish], name=new_name)
+            updated_dog = pet_base_repository._get(entity_id=dog.id)
+            updated_cat = pet_base_repository._get(entity_id=cat.id)
+            updated_fish = pet_base_repository._get(entity_id=fish.id)
+
+            assert updated_dog.name == new_name
+            assert updated_dog.age == dog.age
+            assert updated_dog.type == dog.type
+            assert updated_dog.shelter_id == dog.shelter_id
+
+            assert updated_cat.name == new_name
+            assert updated_cat.age == cat.age
+            assert updated_cat.type == cat.type
+            assert updated_cat.shelter_id == cat.shelter_id
+
+            assert updated_fish.name == new_name
+            assert updated_fish.age == fish.age
+            assert updated_fish.type == fish.type
+            assert updated_fish.shelter_id == fish.shelter_id
 
     class TestGet:
         """Tests for the _get method"""
@@ -116,13 +207,13 @@ class TestBaseRepositoryWithDatabase:
 
             assert _dog.shelter == dog.shelter  # Fails due to "DetachedInstanceError: Parent instance <Pet at 0x10826a840> is not bound to a Session" (dog instance)
 
-    class TestGetAll:
-        """Tests for the _get_all method"""
+    class TestGetBatch:
+        """Tests for the _get_batch method"""
 
         @staticmethod
         def test(dog: Pet, cat: Pet, fish: Pet, pet_base_repository: PetBaseRepository):
             """Test to get all entities"""
-            pets = pet_base_repository._get_all()
+            pets = pet_base_repository._get_batch()
 
             assert len(pets) == 3
             assert dog in pets
@@ -132,7 +223,7 @@ class TestBaseRepositoryWithDatabase:
         @staticmethod
         def test_empty(pet_base_repository: PetBaseRepository):
             """Test to get all entities"""
-            pets = pet_base_repository._get_all()
+            pets = pet_base_repository._get_batch()
 
             assert pets == []
 
@@ -143,7 +234,7 @@ class TestBaseRepositoryWithDatabase:
         def test(pet_base_repository: PetBaseRepository, dog: Pet):
             """Test to delete an entity"""
             pet_base_repository._delete(entity=dog)
-            pets = pet_base_repository._get_all()
+            pets = pet_base_repository._get_batch()
 
             assert pets == []
 
@@ -152,3 +243,20 @@ class TestBaseRepositoryWithDatabase:
             """Test to delete an entity"""
             with pytest.raises(CouldNotDeleteEntityException):
                 pet_base_repository._delete(entity="dog")  # type: ignore
+
+    class TestDeleteBatch:
+        """Tests for the _delete_batch method"""
+
+        @staticmethod
+        def test(pet_base_repository: PetBaseRepository, dog: Pet, cat: Pet, fish: Pet):
+            """Test to delete an entity"""
+            pet_base_repository._delete_batch(entities=[dog, cat, fish])
+            pets = pet_base_repository._get_batch()
+
+            assert pets == []
+
+        @staticmethod
+        def test_raise_could_not_delete_entity(pet_base_repository: PetBaseRepository, dog: Pet, cat: Pet, fish: Pet):
+            """Test to delete an entity fails if the entity does not exist"""
+            with pytest.raises(CouldNotDeleteEntityException):
+                pet_base_repository._delete_batch(entities=["dog", cat, fish])  # type: ignore

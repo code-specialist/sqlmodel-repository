@@ -12,3 +12,7 @@ class CouldNotCreateEntityException(RepositoryException):
 
 class CouldNotDeleteEntityException(RepositoryException):
     """Exception raised when an entity could not be deleted"""
+
+
+class EntityDoesNotPossessAttributeException(RepositoryException):
+    """Exception raised when an entity does not possess an attribute"""
