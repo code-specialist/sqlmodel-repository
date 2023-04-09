@@ -1,10 +1,9 @@
 from abc import ABC
 from typing import List, TypeVar
 
-
 from sqlmodel import col
-from sqlmodel_repository.base_repository import BaseRepository
 
+from sqlmodel_repository.base_repository import BaseRepository
 from sqlmodel_repository.entity import SQLModelEntity
 from sqlmodel_repository.exceptions import EntityDoesNotPossessAttributeException
 
