@@ -4,11 +4,6 @@ from tests.config import POSTGRESQL_DATABASE_URI
 from tests.integration.scenarios.entities import Pet, Shelter, model_metadata
 
 
-def patch_database_target(monkeypatch):
-    """Patch the database target to use a test database"""
-    monkeypatch.setenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/test")
-
-
 @pytest.fixture(scope="session")
 def database_setup() -> DatabaseSetup:
     """Fixture to create a database setup"""
