@@ -1,4 +1,4 @@
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 from .base_repository import BaseRepository
 from .entity import SQLModelEntity
