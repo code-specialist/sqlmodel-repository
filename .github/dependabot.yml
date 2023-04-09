@@ -1,0 +1,22 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    assignees:
+      - "jonasscholl"
+    ignore:
+      # Dev Dependencies
+      - dependency-name: "psycopg2-binary"
+        update-types: ["version-update:semver-patch"]
+      - dependency-name: "pylint"
+        update-types: ["version-update:semver-patch"]
+      - dependency-name: "pylint-quotes"
+        update-types: ["version-update:semver-patch"]
+      - dependency-name: "pytest-cov"
+        update-types: ["version-update:semver-patch"]
+      - dependency-name: "pytest"
+        update-types: ["version-update:semver-patch"]
+      - dependency-name: "database-setup-tools"
+        update-types: ["version-update:semver-patch"]
