@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-
 from functools import lru_cache
 from typing import Generic, Type, TypeVar, get_args
 
