@@ -1,5 +1,6 @@
-from database_setup_tools.setup import DatabaseSetup
 import pytest
+from database_setup_tools import DatabaseSetup
+
 from tests.config import POSTGRESQL_DATABASE_URI
 from tests.integration.scenarios.entities import Pet, Shelter, model_metadata
 

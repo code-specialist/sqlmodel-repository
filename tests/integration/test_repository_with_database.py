@@ -1,9 +1,10 @@
 from typing import Generator
-from database_setup_tools.session_manager import SessionManager
-import pytest
-from sqlalchemy.orm import Session
-from sqlmodel_repository.exceptions import CouldNotCreateEntityException, CouldNotDeleteEntityException, EntityDoesNotPossessAttributeException, EntityNotFoundException
 
+import pytest
+from database_setup_tools import SessionManager
+from sqlalchemy.orm import Session
+
+from sqlmodel_repository.exceptions import CouldNotCreateEntityException, CouldNotDeleteEntityException, EntityDoesNotPossessAttributeException, EntityNotFoundException
 from tests.integration.scenarios.entities import Pet, PetType, Shelter
 from tests.integration.scenarios.repository.pet import PetRepository
 from tests.integration.scenarios.repository.shelter import ShelterRepository

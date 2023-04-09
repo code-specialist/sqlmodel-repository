@@ -33,7 +33,7 @@ jobs:
         shell: bash
 
       - name: Install poetry
-        run: pip install poetry==1.1.8 poetry-core==1.0.4
+        run: pip install poetry
         shell: bash
 
       - name: Install dependencies
