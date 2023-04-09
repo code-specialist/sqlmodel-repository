@@ -1,29 +1,46 @@
 [build-system]
-requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core"]
 
 [tool.poetry]
-name = "python-repository"
-version = "1.0.0"
-description = "sqlmodel repository pattern implementation"
 authors = ["Jonas Scholl <jonas@code-specialist.com>", "Yannic Schröer <yannic@code-specialist.com>"]
+description = "Repository pattern implementation for SQLModel (SQLAlchemy)"
 license = "MIT"
+name = "sqlmodel-repository"
 readme = "README.md"
+version = "1.0.0"
 
 [tool.poetry.dependencies]
+database-setup-tools = "1.3.0"
 python = "^3.9"
-database-setup-tools = "^1.0.1"
 sqlmodel = "^0.0.8"
 
 [tool.poetry.dev-dependencies]
-pytest-cov = "^4.0.0"
 psycopg2-binary = "^2.9.5"
-pytest = "^7.2.0"
 pylint = "^2.15.8"
 pylint-quotes = "^0.2.3"
+pytest = "^7.2.0"
+pytest-cov = "^4.0.0"
 
 [tool.pytest.ini_options]
-addopts = "-x -p no:warnings --cov-report=term-missing --cov-report=term --no-cov-on-fail --cov=python_repository"
+addopts = "-x -p no:warnings -v --cov-report=term-missing --cov-report=term --no-cov-on-fail --cov=sqlmodel_repository"
+
+[tool.black]
+line-length = 200
+target-version = ["py39", "py310", "py311"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+  "def __repr__",
+  "if self.debug:",
+  "if settings.DEBUG",
+  "raise AssertionError",
+  "raise NotImplementedError",
+  "pass",
+  "if 0:",
+  "if __name__ == .__main__.:",
+]
 
 [tool.pylint.main]
 ignore = ["venv", ".venv", ".pytest_cache"]
@@ -42,6 +59,6 @@ disable = ["missing-module-docstring"]
 check-quote-consistency = true
 check-str-concat-over-line-jumps = true
 
+docstring-quote = "double"
 string-quote = "double"
 triple-quote = "double"
-docstring-quote = "double"

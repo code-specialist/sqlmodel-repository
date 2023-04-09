@@ -1,36 +1,31 @@
-from enum import Enum
-
-from database_setup_tools.session_manager import SessionManager
 from database_setup_tools.setup import DatabaseSetup
-
-from tests.config import SQLITE_DATABASE_URI
-from tests.integration.scenario.entities import model_metadata
-
-
-class Databases(Enum):
-    """ Enum of the databases """
-    # POSTGRESQL = "postgresql"
-    SQLITE = "sqlite"
+import pytest
+from tests.config import POSTGRESQL_DATABASE_URI
+from tests.integration.scenarios.entities import Pet, Shelter, model_metadata
 
 
-def build_setup(database: Databases) -> DatabaseSetup:
-    """ Build the setups for the databases """
-    database_uri = {
-        # Databases.POSTGRESQL: POSTGRESQL_DATABASE_URI,
-        Databases.SQLITE: SQLITE_DATABASE_URI
-    }.get(database)
-
-    return DatabaseSetup(model_metadata=model_metadata, database_uri=database_uri)
+@pytest.fixture(scope="session")
+def database_setup() -> DatabaseSetup:
+    """Fixture to create a database setup"""
+    return DatabaseSetup(model_metadata=model_metadata, database_uri=POSTGRESQL_DATABASE_URI)
 
 
-setups = [build_setup(database=database) for database in Databases]
-session_managers = [SessionManager(database_uri=setup.database_uri) for setup in setups]
+@pytest.fixture(scope="session")
+def session_manager(database_setup: DatabaseSetup):
+    """Fixture to create a session manager"""
+    return database_setup.session_manager
 
 
 # pylint: disable=unused-argument
-# noinspection PyUnusedLocal
 def pytest_sessionstart(session):
-    """ Create or reset the databases before the tests """
-    for setup in setups:
-        setup.drop_database()
-        setup.create_database()
+    """Create or reset the databases before the tests"""
+    database_setup = DatabaseSetup(model_metadata=model_metadata, database_uri=POSTGRESQL_DATABASE_URI)
+    database_setup.drop_database()
+    database_setup.create_database()
+
+
+@pytest.fixture(scope="function", autouse=True)
+def before_each_test():
+    """Reset the database before each test"""
+    database_setup = DatabaseSetup(model_metadata=model_metadata, database_uri=POSTGRESQL_DATABASE_URI)
+    database_setup.truncate(tables=[Pet, Shelter])  # type: ignore
