@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from functools import lru_cache
-from typing import Generic, Type, TypeVar, get_args
+from typing import Generic, Optional, Type, TypeVar, get_args
 
 from sqlalchemy.orm import Session
 from structlog import WriteLogger
@@ -20,7 +20,7 @@ class BaseRepository(Generic[GenericEntity], ABC):
     sensitive_attribute_keys: list[str] = []
     _default_excluded_keys = ["_sa_instance_state"]
 
-    def __init__(self, logger: WriteLogger | None = None, sensitive_attribute_keys: list[str] | None = None):
+    def __init__(self, logger: Optional[WriteLogger] = None, sensitive_attribute_keys: Optional[list[str]] = None):
         """Initializes the repository
 
         Args:
@@ -123,7 +123,7 @@ class BaseRepository(Generic[GenericEntity], ABC):
         return result
 
     # pylint: disable=dangerous-default-value
-    def _get_batch(self, filters: list | None = None) -> list[GenericEntity]:
+    def _get_batch(self, filters: Optional[list] = None) -> list[GenericEntity]:
         """Retrieves a list of entities from the database that match the specified filters.
 
         Args:
@@ -246,12 +246,12 @@ class BaseRepository(Generic[GenericEntity], ABC):
         excluded_keys = [*self.sensitive_attribute_keys, *self._default_excluded_keys]
         return {f"{prefix}{key}": value for key, value in kwargs.items() if key not in excluded_keys}
 
-    def _emit_log(self, operation: str, entities: list[GenericEntity] | None = None, **kwargs) -> None:
+    def _emit_log(self, operation: str, entities: Optional[list[GenericEntity]] = None, **kwargs) -> None:
         """Emits a log message for the specified event
 
         Args:
             message (str): The log message to emit
-            entities (list[GenericEntity] | None): A list of entities to include in the log message. Default is None.
+            entities (Optional[list[GenericEntity]]): A list of entities to include in the log message. Default is None.
             **kwargs: Additional key-value pairs to include in the log message.
         """
         entities = entities or []
