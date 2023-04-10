@@ -115,11 +115,7 @@ Each `Repository` comes with a set of **typed methods** to perform common CRUD o
 
 ______________________________________________________________________
 
-- `find`: Find all records of an entity that match the given filters
-
-______________________________________________________________________
-
-- `get_by_id`: Get a single record by its ID
+- `get`: Get a single record by its ID
 - `get_batch`: Get all records of an entity that match the given filters
 - `get_batch_by_ids`: Get a batch of records by their IDs
 - `get_all`: Get all records of an entity
@@ -142,14 +138,15 @@ ______________________________________________________________________
 
 If you require more flexibility, you may also use the `BaseRepository` which provides more granular operations. The `BaseRepository` provides the following methods:
 
-- `_create`: Create a new record of an entity
-- `_create_batch`: Create a batch of records of an entity
-- `_update`: Update an entity instance
-- `_update_batch`: Update a batch of entity instances with the same values
-- `_get`: Get a single record by its ID
-- `_get_batch`: Get all records of an entity that match the given filters
-- `_delete`: Delete an entity instance
-- `_delete_batch`: Delete a batch of entity instances
+- `create`: Create a new record of an entity
+- `create_batch`: Create a batch of records of an entity
+- `update`: Update an entity instance
+- `update_batch`: Update a batch of entity instances with the same values
+- `get`: Get a single record by its ID
+- `get_batch`: Get all records of an entity that match the given filters
+- `find`: Find all records of an entity that match the given filters
+- `delete`: Delete an entity instance
+- `delete_batch`: Delete a batch of entity instances
 
 ## Examples
 

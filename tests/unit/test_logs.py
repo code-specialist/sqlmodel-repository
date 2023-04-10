@@ -98,7 +98,7 @@ class TestLogs:
         values_to_check = entity.dict()
 
         # Update the entity
-        base_repository._update(entity, string_attribute="new_string")
+        base_repository.update(entity, string_attribute="new_string")
         log_entry = self.get_log_entry(caplog=caplog, message_beginning="Updating")
         assert log_entry
 
@@ -117,7 +117,7 @@ class TestLogs:
         values_to_check = entity.dict()
 
         # Update the entities
-        base_repository._update_batch([entity], string_attribute="new_string")
+        base_repository.update_batch([entity], string_attribute="new_string")
         log_entry = self.get_log_entry(caplog=caplog, message_beginning="Batch updating")
         assert log_entry
 
@@ -133,7 +133,7 @@ class TestLogs:
     def test_get_log(self, base_repository: BaseRepository, entity: TestLogEntity, caplog):
         """Test the the _get method logs the correct information."""
         # Get the entity
-        base_repository._get(entity.id)
+        base_repository.get(entity.id)
         log_entry = self.get_log_entry(caplog=caplog, message_beginning="Getting")
         assert log_entry
 
@@ -141,10 +141,10 @@ class TestLogs:
         assert log_entry.get("event") == f"Getting {entity.__class__.__name__}"
         assert log_entry.get("kwarg_id") == entity.id
 
-    def test_get_batch_log(self, base_repository: BaseRepository, entity: TestLogEntity, caplog):
-        """Test the the _get_batch method logs the correct information."""
+    def testget_batch_log(self, base_repository: BaseRepository, entity: TestLogEntity, caplog):
+        """Test the the get_batch method logs the correct information."""
         # Get the entity
-        base_repository._get_batch([col(TestLogEntity.id) == entity.id])
+        base_repository.get_batch([col(TestLogEntity.id) == entity.id])
         log_entry = self.get_log_entry(caplog=caplog, message_beginning="Batch get")
         assert log_entry
 
@@ -154,7 +154,7 @@ class TestLogs:
     def test_create_log(self, base_repository: BaseRepository, entity: TestLogEntity, caplog):
         """Test that the _create method logs the correct information."""
         # Create the entity
-        base_repository._create(entity)
+        base_repository.create(entity)
         log_entry = self.get_log_entry(caplog=caplog, message_beginning="Creating")
         assert log_entry
 
@@ -167,7 +167,7 @@ class TestLogs:
     def test_create_batch_log(self, base_repository: BaseRepository, entity: TestLogEntity, caplog):
         """Test that the _create_batch method logs the correct information."""
         # Create the entity
-        base_repository._create_batch([entity])
+        base_repository.create_batch([entity])
         log_entry = self.get_log_entry(caplog=caplog, message_beginning="Batch creating")
         assert log_entry
 
@@ -180,7 +180,7 @@ class TestLogs:
     def test_delete_log(self, base_repository: BaseRepository, entity: TestLogEntity, caplog):
         """Test that the _delete method logs the correct information."""
         # Delete the entity
-        base_repository._delete(entity)
+        base_repository.delete(entity)
         log_entry = self.get_log_entry(caplog=caplog, message_beginning="Deleting")
         assert log_entry
 
@@ -193,7 +193,7 @@ class TestLogs:
     def test_delete_batch_log(self, base_repository: BaseRepository, entity: TestLogEntity, caplog):
         """Test that the _delete_batch method logs the correct information."""
         # Delete the entity
-        base_repository._delete_batch([entity])
+        base_repository.delete_batch([entity])
         log_entry = self.get_log_entry(caplog=caplog, message_beginning="Batch deleting")
         assert log_entry
 
