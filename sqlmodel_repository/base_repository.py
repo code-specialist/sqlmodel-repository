@@ -1,10 +1,8 @@
 from abc import ABC, abstractmethod
 from functools import lru_cache
-from logging import Logger, getLogger
 from typing import Generic, Type, TypeVar, get_args
 
 from sqlalchemy.orm import Session
-from sqlalchemy.sql.elements import ColumnClause
 from structlog import WriteLogger
 
 from sqlmodel_repository.entity import SQLModelEntity
