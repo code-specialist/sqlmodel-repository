@@ -13,6 +13,7 @@ version = "1.0.2"
 [tool.poetry.dependencies]
 python = "^3.9"
 sqlmodel = "^0.0.8"
+structlog = "^23.1.0"
 
 [tool.poetry.dev-dependencies]
 psycopg2-binary = "^2.9.5"
