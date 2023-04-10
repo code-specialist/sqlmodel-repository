@@ -84,6 +84,8 @@ class ShelterRepository(AbstractRepository[Shelter]):
     """Repository to manage shelters"""
 ```
 
+Optionally, you may pass a `logger` keyword argument to the repository to log the operations. The logger should be a `structlog` logger with enabled `JSONRenderer`. If no logger is provided the repository will use its default logger (`SQLModelRepositoryLogger`).
+
 Done 🚀 You can now use the repository to perform the operations on your entities. e.g.:
 
 ```python
