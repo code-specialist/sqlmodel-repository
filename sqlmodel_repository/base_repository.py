@@ -15,10 +15,7 @@ GenericEntity = TypeVar("GenericEntity", bound=SQLModelEntity)
 
 class BaseRepository(Generic[GenericEntity], ABC):
     """Abstract base class for all repositories"""
-
-    entity: Type[GenericEntity]
-    logger: WriteLogger
-    sensitive_attribute_keys: list[str] = []
+    
     _default_excluded_keys = ["_sa_instance_state"]
 
     def __init__(self, logger: Optional[WriteLogger] = None, sensitive_attribute_keys: Optional[list[str]] = None):
