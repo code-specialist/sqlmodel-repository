@@ -54,6 +54,7 @@ class TestLogs:
         """Return a TestLogEntity instance."""
         return TestLogEntity(id=1, string_attribute="test_string", integer_attribute=1, password="test_password")
 
+
     @pytest.fixture(autouse=True)
     def patch_get(self, request, entity: TestLogEntity):
         """Patch the get method of the BaseRepository to return the entity as we do not use am actual session."""
