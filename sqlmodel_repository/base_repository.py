@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from functools import lru_cache
-from typing import Generic, Optional, Type, TypeVar, get_args
+from typing import Generic, List, Optional, Type, TypeVar, get_args
 
 from sqlalchemy.orm import Session
+from sqlmodel import col
 from structlog import WriteLogger
 
 from sqlmodel_repository.entity import SQLModelEntity
@@ -14,10 +15,7 @@ GenericEntity = TypeVar("GenericEntity", bound=SQLModelEntity)
 
 class BaseRepository(Generic[GenericEntity], ABC):
     """Abstract base class for all repositories"""
-
-    entity: Type[GenericEntity]
-    logger: WriteLogger
-    sensitive_attribute_keys: list[str] = []
+    
     _default_excluded_keys = ["_sa_instance_state"]
 
     def __init__(self, logger: Optional[WriteLogger] = None, sensitive_attribute_keys: Optional[list[str]] = None):
@@ -40,7 +38,25 @@ class BaseRepository(Generic[GenericEntity], ABC):
         """Provides a session to work with"""
         raise NotImplementedError
 
-    def _update(self, entity: GenericEntity, **kwargs) -> GenericEntity:
+    def find(self, **kwargs) -> List[GenericEntity]:
+        """Get multiple entities with one query by filters
+
+        Args:
+            **kwargs: The filters to apply
+
+        Returns:
+            List[GenericEntity]: The entities that were found in the repository for the given filters
+        """
+        filters = []
+
+        for key, value in kwargs.items():
+            try:
+                filters.append(col(getattr(self.entity, key)) == value)
+            except AttributeError as attribute_error:
+                raise EntityDoesNotPossessAttributeException(f"Entity {self.entity} does not have the attribute {key}") from attribute_error
+        return self.get_batch(filters=filters)
+
+    def update(self, entity: GenericEntity, **kwargs) -> GenericEntity:
         """Updates an entity with the given attributes (keyword arguments) if they are not None
 
         Args:
@@ -59,7 +75,7 @@ class BaseRepository(Generic[GenericEntity], ABC):
         session = self.get_session()
         self._emit_log("Updating", entities=[entity], **kwargs)
 
-        entity = self._get(entity_id=entity.id)
+        entity = self.get(entity_id=entity.id)
 
         for key, value in kwargs.items():
             if value is not None:
@@ -73,7 +89,7 @@ class BaseRepository(Generic[GenericEntity], ABC):
 
         return entity
 
-    def _update_batch(self, entities: list[GenericEntity], **kwargs) -> list[GenericEntity]:
+    def update_batch(self, entities: list[GenericEntity], **kwargs) -> list[GenericEntity]:
         """Updates a list of entities with the given attributes (keyword arguments) if they are not None
 
         Args:
@@ -102,7 +118,7 @@ class BaseRepository(Generic[GenericEntity], ABC):
 
         return entities
 
-    def _get(self, entity_id: int) -> GenericEntity:
+    def get(self, entity_id: int) -> GenericEntity:
         """Retrieves an entity from the database with the specified ID.
 
         Args:
@@ -123,7 +139,7 @@ class BaseRepository(Generic[GenericEntity], ABC):
         return result
 
     # pylint: disable=dangerous-default-value
-    def _get_batch(self, filters: Optional[list] = None) -> list[GenericEntity]:
+    def get_batch(self, filters: Optional[list] = None) -> list[GenericEntity]:
         """Retrieves a list of entities from the database that match the specified filters.
 
         Args:
@@ -141,7 +157,7 @@ class BaseRepository(Generic[GenericEntity], ABC):
         result = session.query(self.entity).filter(*filters).all()
         return result
 
-    def _create(self, entity: GenericEntity) -> GenericEntity:
+    def create(self, entity: GenericEntity) -> GenericEntity:
         """Adds a new entity to the database.
 
         Args:
@@ -165,7 +181,7 @@ class BaseRepository(Generic[GenericEntity], ABC):
             session.rollback()
             raise CouldNotCreateEntityException from exception
 
-    def _create_batch(self, entities: list[GenericEntity]) -> list[GenericEntity]:
+    def create_batch(self, entities: list[GenericEntity]) -> list[GenericEntity]:
         """Adds a batch of new entities to the database.
 
         Args:
@@ -190,7 +206,7 @@ class BaseRepository(Generic[GenericEntity], ABC):
             session.refresh(entity)
         return entities
 
-    def _delete(self, entity: GenericEntity) -> GenericEntity:
+    def delete(self, entity: GenericEntity) -> GenericEntity:
         """Deletes an entity from the database.
 
         Args:
@@ -213,7 +229,7 @@ class BaseRepository(Generic[GenericEntity], ABC):
             session.rollback()
             raise CouldNotDeleteEntityException from exception
 
-    def _delete_batch(self, entities: list[GenericEntity]) -> None:
+    def delete_batch(self, entities: list[GenericEntity]) -> None:
         """Deletes a batch of entities from the database.
 
         Args:
