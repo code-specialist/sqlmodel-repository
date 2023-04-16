@@ -3,6 +3,7 @@ from functools import lru_cache
 from typing import Generic, List, Optional, Type, TypeVar, get_args
 
 from sqlalchemy.orm import Session
+from sqlalchemy.sql.elements import ColumnClause
 from sqlmodel import col
 from structlog import WriteLogger
 
@@ -15,6 +16,7 @@ GenericEntity = TypeVar("GenericEntity", bound=SQLModelEntity)
 
 class BaseRepository(Generic[GenericEntity], ABC):
     """Abstract base class for all repositories"""
+
     _default_excluded_keys = ["_sa_instance_state"]
 
     def __init__(self, logger: Optional[WriteLogger] = None, sensitive_attribute_keys: Optional[list[str]] = None):
@@ -45,19 +47,30 @@ class BaseRepository(Generic[GenericEntity], ABC):
 
         Returns:
             List[GenericEntity]: The entities that were found in the repository for the given filters
-            
+
         Notes:
             - Success log is covered by get_batch
         """
         filters = []
         self._emit_operation_begin_log("Finding", **kwargs)
-
-        for key, value in kwargs.items():
-            try:
-                filters.append(col(getattr(self.entity, key)) == value)
-            except AttributeError as attribute_error:
-                raise EntityDoesNotPossessAttributeException(f"Entity {self.entity} does not have the attribute {key}") from attribute_error
+        filters = self._create_filters(**kwargs)
         return self.get_batch(filters=filters)
+
+    def find_one(self, **kwargs) -> GenericEntity:
+        """Get a single entity with one query by filters
+
+        Args:
+            **kwargs: The filters to apply
+
+        Returns:
+            GenericEntity: The entity that was found in the repository for the given filters
+        """
+        session = self.get_session()
+        self._emit_operation_begin_log("Finding one", **kwargs)
+        filters = self._create_filters(**kwargs)
+        result = session.query(self.entity).filter(*filters).one()
+        self._emit_operation_success_log("Finding one", entities=[result])
+        return result
 
     def update(self, entity: GenericEntity, **kwargs) -> GenericEntity:
         """Updates an entity with the given attributes (keyword arguments) if they are not None
@@ -89,7 +102,7 @@ class BaseRepository(Generic[GenericEntity], ABC):
 
         session.commit()
         session.refresh(entity)
-        
+
         self._emit_operation_success_log("Updating", entities=[entity])
         return entity
 
@@ -141,7 +154,7 @@ class BaseRepository(Generic[GenericEntity], ABC):
         result = session.query(self.entity).filter(self.entity.id == entity_id).one_or_none()
         if result is None:
             raise EntityNotFoundException(f"Entity {GenericEntity.__name__} with ID {entity_id} not found")
-        
+
         self._emit_operation_success_log("Getting", entities=[result])
         return result
 
@@ -162,7 +175,7 @@ class BaseRepository(Generic[GenericEntity], ABC):
         self._emit_operation_begin_log("Batch get")
 
         result = session.query(self.entity).filter(*filters).all()
-        
+
         self._emit_operation_success_log("Batch get", entities=result)
         return result
 
@@ -185,8 +198,8 @@ class BaseRepository(Generic[GenericEntity], ABC):
             session.add(entity)
             session.commit()
             session.refresh(entity)
-            
-            self._emit_operation_success_log("Creating", entities=[entity])            
+
+            self._emit_operation_success_log("Creating", entities=[entity])
             return entity
         except Exception as exception:
             session.rollback()
@@ -215,7 +228,7 @@ class BaseRepository(Generic[GenericEntity], ABC):
 
         for entity in entities:
             session.refresh(entity)
-            
+
         self._emit_operation_success_log("Batch creating", entities=entities)
         return entities
 
@@ -237,7 +250,7 @@ class BaseRepository(Generic[GenericEntity], ABC):
         try:
             session.delete(entity)
             session.commit()
-            
+
             self._emit_operation_success_log("Deleting", entities=[entity])
             return entity
         except Exception as exception:
@@ -266,6 +279,23 @@ class BaseRepository(Generic[GenericEntity], ABC):
             session.rollback()
             raise CouldNotDeleteEntityException from exception
 
+    def _create_filters(self, **kwargs) -> list[ColumnClause]:
+        """Creates a list of filters for a query
+
+        Args:
+            **kwargs: The filters to build
+
+        Returns:
+            list: The filters to apply to a query
+        """
+        filters = []
+        for key, value in kwargs.items():
+            try:
+                filters.append(col(getattr(self.entity, key)) == value)
+            except AttributeError as attribute_error:
+                raise EntityDoesNotPossessAttributeException(f"Entity {self.entity} does not have the attribute {key}") from attribute_error
+        return filters
+
     def _safe_kwargs(self, prefix: str = "", **kwargs) -> dict[str, str]:
         """Filters out sensitive attributes from the log kwargs
 
@@ -290,7 +320,7 @@ class BaseRepository(Generic[GenericEntity], ABC):
             entity_ids = [entity.id for entity in entities]
             entity_log: dict = {"entity_ids": entity_ids}
             self.logger.debug(f"{operation} {self.entity.__name__} succeeded", **entity_log)
-        except Exception as exception: # pylint: disable=broad-except:
+        except Exception as exception:  # pylint: disable=broad-except:
             # We want to catch all exceptions here. Logs must be written by all means. It's no silent passing and thereby acceptable.
             self.logger.exception(f"Could not emit log for concluding {operation} {self.entity.__name__}", exception=exception)  # type: ignore TODO: fix this
 

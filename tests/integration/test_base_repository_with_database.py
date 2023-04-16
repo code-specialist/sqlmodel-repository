@@ -106,6 +106,19 @@ class TestBaseRepositoryWithDatabase:
             with pytest.raises(EntityDoesNotPossessAttributeException):
                 pet_base_repository.find(legs=12)
 
+    class TestFindOne:
+        """Tests for the find_one method."""
+
+        def test_find_one_by_attribute(self, pet_base_repository: PetBaseRepository, dog: Pet):
+            """Test to find an entity"""
+            assert pet_base_repository.find_one(name=dog.name) == dog
+            assert pet_base_repository.find_one(type=PetType.DOG) == dog
+
+        def test_raises_entity_does_not_possess_attribute(self, pet_base_repository: PetBaseRepository, dog: Pet):
+            """Test to find an entity"""
+            with pytest.raises(EntityDoesNotPossessAttributeException):
+                pet_base_repository.find_one(legs=12)
+
     class TestCreateBatch:
         """Tests for the _create_batch method"""
 
