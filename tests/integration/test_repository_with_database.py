@@ -67,18 +67,18 @@ class TestRepositoryWithDatabase:
     # Tests
     #
     class TestGetById:
-        """Tests for the get_by_id method."""
+        """Tests for the get method."""
 
         @staticmethod
         def test(pet_repository: PetRepository, dog: Pet):
             """Test to get an entity"""
-            assert pet_repository.get_by_id(entity_id=dog.id) == dog
+            assert pet_repository.get(entity_id=dog.id) == dog
 
         @staticmethod
         def test_raise_entity_not_found(pet_repository: PetRepository):
             """Test to get an entity that does not exist"""
             with pytest.raises(EntityNotFoundException):
-                pet_repository.get_by_id(entity_id=1)
+                pet_repository.get(entity_id=1)
 
     class TestCreate:
         """Tests for the create method."""
@@ -87,7 +87,7 @@ class TestRepositoryWithDatabase:
         def test(shelter_repository: ShelterRepository):
             """Test to create a new entity"""
             shelter = shelter_repository.create(entity=Shelter(name="Shelter Alpha"))
-            assert shelter_repository.get_by_id(entity_id=shelter.id) == shelter
+            assert shelter_repository.get(entity_id=shelter.id) == shelter
 
         @staticmethod
         def test_raise_could_not_create_entity(shelter_repository: ShelterRepository):
@@ -103,31 +103,14 @@ class TestRepositoryWithDatabase:
             """Test to create a new entity"""
             shelters = shelter_repository.create_batch(entities=[Shelter(name="Shelter Alpha"), Shelter(name="Shelter Beta")])
             assert len(shelters) == 2
-            assert shelter_repository.get_by_id(entity_id=shelters[0].id) == shelters[0]
-            assert shelter_repository.get_by_id(entity_id=shelters[1].id) == shelters[1]
+            assert shelter_repository.get(entity_id=shelters[0].id) == shelters[0]
+            assert shelter_repository.get(entity_id=shelters[1].id) == shelters[1]
 
         @staticmethod
         def test_raise_could_not_create_entity(shelter_repository: ShelterRepository):
             """Test to create a new entity that raises the CouldNotCreateEntityException"""
             with pytest.raises(CouldNotCreateEntityException):
                 shelter_repository.create_batch(entities=["Hans Peter the Goldfish"])  # type: ignore
-
-    class TestFind:
-        """Tests for the find method."""
-
-        def test_find_one_by_attribute(self, pet_repository: PetRepository, dog: Pet):
-            """Test to find an entity"""
-            assert pet_repository.find(name=dog.name) == [dog]
-            assert pet_repository.find(type=PetType.DOG) == [dog]
-
-        def test_find_all_by_attribute(self, pet_repository: PetRepository, dog: Pet, cat: Pet, fish: Pet, shelter_alpha: Shelter, shelter_beta: Shelter):
-            """Test to find an entity"""
-            assert pet_repository.find(shelter=shelter_alpha) == [dog, cat, fish]
-
-        def test_raises_entity_does_not_possess_attribute(self, pet_repository: PetRepository, dog: Pet):
-            """Test to find an entity"""
-            with pytest.raises(EntityDoesNotPossessAttributeException):
-                pet_repository.find(legs=12)
 
     class TestGetBatch:
         """Tests for the get_batch method."""
@@ -174,7 +157,7 @@ class TestRepositoryWithDatabase:
         def test(pet_repository: PetRepository, cat: Pet):
             """Test to update an entity"""
             updated_cat = pet_repository.update(entity=cat, name="Fidolina", age=12)
-            assert updated_cat == pet_repository.get_by_id(entity_id=cat.id)
+            assert updated_cat == pet_repository.get(entity_id=cat.id)
 
     class TestUpdateById:
         """Tests for the update_by_id method."""
@@ -183,7 +166,7 @@ class TestRepositoryWithDatabase:
         def test(pet_repository: PetRepository, cat: Pet):
             """Test to update an entity by id"""
             updated_cat = pet_repository.update_by_id(entity_id=cat.id, name="Fidolina", age=12)
-            assert updated_cat == pet_repository.get_by_id(entity_id=cat.id)
+            assert updated_cat == pet_repository.get(entity_id=cat.id)
 
     class TestUpdateBatch:
         """Tests for the update_batch method."""
@@ -194,7 +177,7 @@ class TestRepositoryWithDatabase:
             updated_pets = pet_repository.update_batch(entities=[cat, dog, fish], name="Fidolina", age=12)
             assert len(updated_pets) == 3
             for pet in updated_pets:
-                assert pet == pet_repository.get_by_id(entity_id=pet.id)
+                assert pet == pet_repository.get(entity_id=pet.id)
                 assert pet.name == "Fidolina"
                 assert pet.age == 12
 
@@ -207,7 +190,7 @@ class TestRepositoryWithDatabase:
             updated_pets = pet_repository.update_batch_by_ids(entity_ids=[cat.id, dog.id, fish.id], name="Fidolina", age=12)
             assert len(updated_pets) == 3
             for pet in updated_pets:
-                assert pet == pet_repository.get_by_id(entity_id=pet.id)
+                assert pet == pet_repository.get(entity_id=pet.id)
                 assert pet.name == "Fidolina"
                 assert pet.age == 12
 
@@ -225,7 +208,7 @@ class TestRepositoryWithDatabase:
             """Test to delete an entity"""
             pet_repository.delete(entity=dog)
             with pytest.raises(EntityNotFoundException):
-                pet_repository.get_by_id(entity_id=dog.id)
+                pet_repository.get(entity_id=dog.id)
 
         @staticmethod
         def test_with_cascade(shelter_repository: ShelterRepository, shelter_alpha: Shelter, pet_repository: PetRepository, dog: Pet, cat: Pet, fish: Pet):
@@ -235,7 +218,7 @@ class TestRepositoryWithDatabase:
             # Ensure that all pets are deleted as well
             for pet in [dog, cat, fish]:
                 with pytest.raises(EntityNotFoundException):
-                    pet_repository.get_by_id(entity_id=pet.id)
+                    pet_repository.get(entity_id=pet.id)
 
         @staticmethod
         def test_raise_could_not_delete_entity(pet_repository: PetRepository):
@@ -251,7 +234,7 @@ class TestRepositoryWithDatabase:
             """Test to delete an entity by id"""
             pet_repository.delete_by_id(entity_id=dog.id)
             with pytest.raises(EntityNotFoundException) as exception:
-                pet_repository.get_by_id(entity_id=dog.id)
+                pet_repository.get(entity_id=dog.id)
                 assert exception._excinfo == f"Entity with id {dog.id} not found"  # pylint: disable=protected-access
 
     class TestDeleteBatch:

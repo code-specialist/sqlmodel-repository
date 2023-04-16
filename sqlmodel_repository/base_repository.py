@@ -1,29 +1,65 @@
 from abc import ABC, abstractmethod
 from functools import lru_cache
-from typing import Generic, Type, TypeVar, get_args
+from typing import Generic, List, Optional, Type, TypeVar, get_args
 
 from sqlalchemy.orm import Session
+from sqlmodel import col
+from structlog import WriteLogger
 
 from sqlmodel_repository.entity import SQLModelEntity
 from sqlmodel_repository.exceptions import CouldNotCreateEntityException, CouldNotDeleteEntityException, EntityDoesNotPossessAttributeException, EntityNotFoundException
+from sqlmodel_repository.logger import sqlmodel_repository_logger
 
 GenericEntity = TypeVar("GenericEntity", bound=SQLModelEntity)
 
 
 class BaseRepository(Generic[GenericEntity], ABC):
     """Abstract base class for all repositories"""
+    _default_excluded_keys = ["_sa_instance_state"]
 
-    entity: Type[GenericEntity]
+    def __init__(self, logger: Optional[WriteLogger] = None, sensitive_attribute_keys: Optional[list[str]] = None):
+        """Initializes the repository
 
-    def __init__(self):
+        Args:
+            logger (Logger, optional): The logger to use. Defaults to None and will use the default logger.
+            sensitive_attribute_keys (list[str], optional): A list of attributes that should be excluded from the logs. Defaults to None.
+
+        Notes:
+            - The default logger is a structlog logger that logs in JSON format.
+            - The default exclusion list (_default_excluded_keys) is ["_sa_instance_state"] which is a default SQLAlchemy attribute that is added to all entities. You may override this.
+        """
         self.entity = self._entity_class()
+        self.logger = logger if logger is not None else sqlmodel_repository_logger
+        self.sensitive_attribute_keys = sensitive_attribute_keys if sensitive_attribute_keys is not None else []
 
     @abstractmethod
     def get_session(self) -> Session:
         """Provides a session to work with"""
         raise NotImplementedError
 
-    def _update(self, entity: GenericEntity, **kwargs) -> GenericEntity:
+    def find(self, **kwargs) -> List[GenericEntity]:
+        """Get multiple entities with one query by filters
+
+        Args:
+            **kwargs: The filters to apply
+
+        Returns:
+            List[GenericEntity]: The entities that were found in the repository for the given filters
+            
+        Notes:
+            - Success log is covered by get_batch
+        """
+        filters = []
+        self._emit_operation_begin_log("Finding", **kwargs)
+
+        for key, value in kwargs.items():
+            try:
+                filters.append(col(getattr(self.entity, key)) == value)
+            except AttributeError as attribute_error:
+                raise EntityDoesNotPossessAttributeException(f"Entity {self.entity} does not have the attribute {key}") from attribute_error
+        return self.get_batch(filters=filters)
+
+    def update(self, entity: GenericEntity, **kwargs) -> GenericEntity:
         """Updates an entity with the given attributes (keyword arguments) if they are not None
 
         Args:
@@ -40,7 +76,9 @@ class BaseRepository(Generic[GenericEntity], ABC):
             This method must use the same context to fetch and update the entity. Otherwise its detached and may not be updated.
         """
         session = self.get_session()
-        entity = self._get(entity_id=entity.id)
+        self._emit_operation_begin_log("Updating", entities=[entity], **kwargs)
+
+        entity = self.get(entity_id=entity.id)
 
         for key, value in kwargs.items():
             if value is not None:
@@ -51,10 +89,11 @@ class BaseRepository(Generic[GenericEntity], ABC):
 
         session.commit()
         session.refresh(entity)
-
+        
+        self._emit_operation_success_log("Updating", entities=[entity])
         return entity
 
-    def _update_batch(self, entities: list[GenericEntity], **kwargs) -> list[GenericEntity]:
+    def update_batch(self, entities: list[GenericEntity], **kwargs) -> list[GenericEntity]:
         """Updates a list of entities with the given attributes (keyword arguments) if they are not None
 
         Args:
@@ -66,6 +105,7 @@ class BaseRepository(Generic[GenericEntity], ABC):
         """
 
         session = self.get_session()
+        self._emit_operation_begin_log("Batch updating", entities=entities, **kwargs)
 
         for entity in entities:
             for key, value in kwargs.items():
@@ -80,9 +120,10 @@ class BaseRepository(Generic[GenericEntity], ABC):
         for entity in entities:
             session.refresh(entity)
 
+        self._emit_operation_success_log("Batch updating", entities=entities)
         return entities
 
-    def _get(self, entity_id: int) -> GenericEntity:
+    def get(self, entity_id: int) -> GenericEntity:
         """Retrieves an entity from the database with the specified ID.
 
         Args:
@@ -95,13 +136,17 @@ class BaseRepository(Generic[GenericEntity], ABC):
             EntityNotFoundException: If the entity was not found in the database
         """
         session = self.get_session()
+        self._emit_operation_begin_log("Getting", id=entity_id)
+
         result = session.query(self.entity).filter(self.entity.id == entity_id).one_or_none()
         if result is None:
             raise EntityNotFoundException(f"Entity {GenericEntity.__name__} with ID {entity_id} not found")
+        
+        self._emit_operation_success_log("Getting", entities=[result])
         return result
 
     # pylint: disable=dangerous-default-value
-    def _get_batch(self, filters: list = []) -> list[GenericEntity]:
+    def get_batch(self, filters: Optional[list] = None) -> list[GenericEntity]:
         """Retrieves a list of entities from the database that match the specified filters.
 
         Args:
@@ -111,10 +156,17 @@ class BaseRepository(Generic[GenericEntity], ABC):
             list[GenericEntity]: A list of GenericEntity objects that match the specified filters.
         """
         session = self.get_session()
+        filters = filters if filters is not None else []
+
+        # TODO: Add (MEANINGFUL!) filters to log. This is a bit tricky because filters is a list of ColumnClause objects and the type is not correctly defined within SQLModel.
+        self._emit_operation_begin_log("Batch get")
+
         result = session.query(self.entity).filter(*filters).all()
+        
+        self._emit_operation_success_log("Batch get", entities=result)
         return result
 
-    def _create(self, entity: GenericEntity) -> GenericEntity:
+    def create(self, entity: GenericEntity) -> GenericEntity:
         """Adds a new entity to the database.
 
         Args:
@@ -127,17 +179,20 @@ class BaseRepository(Generic[GenericEntity], ABC):
             CouldNotCreateEntityException: If there was an error inserting the entity into the database.
         """
         session = self.get_session()
+        self._emit_operation_begin_log("Creating", entities=[entity])
 
         try:
             session.add(entity)
             session.commit()
             session.refresh(entity)
+            
+            self._emit_operation_success_log("Creating", entities=[entity])            
             return entity
         except Exception as exception:
             session.rollback()
             raise CouldNotCreateEntityException from exception
 
-    def _create_batch(self, entities: list[GenericEntity]) -> list[GenericEntity]:
+    def create_batch(self, entities: list[GenericEntity]) -> list[GenericEntity]:
         """Adds a batch of new entities to the database.
 
         Args:
@@ -147,6 +202,8 @@ class BaseRepository(Generic[GenericEntity], ABC):
             list[GenericEntity]: The objects that were added to the database, with any auto-generated fields populated.
         """
         session = self.get_session()
+        self._emit_operation_begin_log("Batch creating", entities=entities)
+
         try:
             for entity in entities:
                 session.add(entity)
@@ -158,9 +215,11 @@ class BaseRepository(Generic[GenericEntity], ABC):
 
         for entity in entities:
             session.refresh(entity)
+            
+        self._emit_operation_success_log("Batch creating", entities=entities)
         return entities
 
-    def _delete(self, entity: GenericEntity) -> GenericEntity:
+    def delete(self, entity: GenericEntity) -> GenericEntity:
         """Deletes an entity from the database.
 
         Args:
@@ -173,15 +232,19 @@ class BaseRepository(Generic[GenericEntity], ABC):
             DatabaseError: If there was an error deleting the entity from the database.
         """
         session = self.get_session()
+        self._emit_operation_begin_log("Deleting", entities=[entity])
+
         try:
             session.delete(entity)
             session.commit()
+            
+            self._emit_operation_success_log("Deleting", entities=[entity])
             return entity
         except Exception as exception:
             session.rollback()
             raise CouldNotDeleteEntityException from exception
 
-    def _delete_batch(self, entities: list[GenericEntity]) -> None:
+    def delete_batch(self, entities: list[GenericEntity]) -> None:
         """Deletes a batch of entities from the database.
 
         Args:
@@ -191,15 +254,63 @@ class BaseRepository(Generic[GenericEntity], ABC):
             CouldNotDeleteEntityException: If there was an error deleting the entities from the database.
         """
         session = self.get_session()
+        self._emit_operation_begin_log("Batch deleting", entities=entities)
 
         try:
             for entity in entities:
                 session.delete(entity)
 
+            self._emit_operation_success_log("Batch deleting", entities=entities)
             session.commit()
         except Exception as exception:
             session.rollback()
             raise CouldNotDeleteEntityException from exception
+
+    def _safe_kwargs(self, prefix: str = "", **kwargs) -> dict[str, str]:
+        """Filters out sensitive attributes from the log kwargs
+
+        Args:
+            **kwargs: The key-value pairs to filter
+
+        Returns:
+            dict[str, str]: The filtered key-value pairs
+        """
+        excluded_keys = [*self.sensitive_attribute_keys, *self._default_excluded_keys]
+        return {f"{prefix}{key}": value for key, value in kwargs.items() if key not in excluded_keys}
+
+    def _emit_operation_success_log(self, operation: str, entities: Optional[list[GenericEntity]] = None) -> None:
+        """Emits a log message for the specified event
+
+        Args:
+            operation (str): The log message to emit
+            entities (Optional[list[GenericEntity]]): A list of entities to include in the log message. Default is None.
+        """
+        entities = entities or []
+        try:
+            entity_ids = [entity.id for entity in entities]
+            entity_log: dict = {"entity_ids": entity_ids}
+            self.logger.debug(f"{operation} {self.entity.__name__} succeeded", **entity_log)
+        except Exception as exception: # pylint: disable=broad-except:
+            # We want to catch all exceptions here. Logs must be written by all means. It's no silent passing and thereby acceptable.
+            self.logger.exception(f"Could not emit log for concluding {operation} {self.entity.__name__}", exception=exception)  # type: ignore TODO: fix this
+
+    def _emit_operation_begin_log(self, operation: str, entities: Optional[list[GenericEntity]] = None, **kwargs) -> None:
+        """Emits a log message for the specified event
+
+        Args:
+            operation (str): The log message to emit
+            entities (Optional[list[GenericEntity]]): A list of entities to include in the log message. Default is None.
+            **kwargs: Additional key-value pairs to include in the log message.
+        """
+        entities = entities or []
+        try:
+            entity_payloads = [self._safe_kwargs(**entity.dict()) for entity in entities]
+            entity_log: dict = {**entity_payloads[0]} if len(entity_payloads) == 1 else {"payload": entity_payloads}
+            kwargs_log: dict = self._safe_kwargs(prefix="kwarg_", **kwargs)  # Prefix is necessary to avoid conflicts with entity attributes
+            self.logger.debug(f"{operation} {self.entity.__name__}", **entity_log, **kwargs_log)
+        except Exception as exception:  # pylint: disable=broad-except:
+            # We want to catch all exceptions here. Logs must be written by all means. It's no silent passing and thereby acceptable.
+            self.logger.warning(f"Could not emit log for starting {operation} {self.entity.__name__}", exception=exception)  # type: ignore TODO: fix this
 
     @classmethod
     @lru_cache(maxsize=1)
